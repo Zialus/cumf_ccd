@@ -12,9 +12,11 @@ find_package(OpenMP REQUIRED)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/exec/")
 
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -w -arch=sm_35 -rdc=true -Xptxas -dlcm=ca --std=c++11)
+set(EXTRA_NVCC_FLAGS -w -arch=sm_35 -rdc=true -Xptxas -dlcm=ca --std=c++11)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${EXTRA_NVCC_FLAGS})
+
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS})
 
 file(GLOB src "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c" )
 file(GLOB hdr "${PROJECT_SOURCE_DIR}/src/*.hpp" "${PROJECT_SOURCE_DIR}/src/*.h" )
