@@ -76,7 +76,7 @@ void print_help_and_exit() {
 	exit(1);
 }
 
-Options parse_cmd_options(int argc, char **argv, char *train_file_name, char *test_file_name) {
+Options parse_cmd_options(int argc, char **argv, char *train_file_directory) {
 	Options param;
 	int i;
 	//handle options
@@ -119,12 +119,11 @@ Options parse_cmd_options(int argc, char **argv, char *train_file_name, char *te
 	if (i >= argc)
 		print_help_and_exit();
 
-	strcpy(train_file_name, argv[i]);
-	strcpy(test_file_name, argv[i + 1]);
+	strcpy(train_file_directory, argv[i]);
 	return param;
 }
 
-void run_ccdr1(Options &param, const char* train_file_name, char* test_file_name) {
+void run_ccdr1(Options &param, const char* train_file_directory) {
 
 //	cudaEvent_t start, stop;
 	float elapsedTime;
@@ -136,7 +135,7 @@ void run_ccdr1(Options &param, const char* train_file_name, char* test_file_name
 	MatData W, H;
 	TestData testdata;
 
-	load_from_binary(train_file_name, R, testdata);
+	load_from_binary(train_file_directory, R, testdata);
 	// W, H  here are k*m, k*n
 	init_random(W, param.k, R.rows_);
 	init_random(H, param.k, R.cols_);
@@ -149,13 +148,12 @@ void run_ccdr1(Options &param, const char* train_file_name, char* test_file_name
 }
 
 int main(int argc, char* argv[]) {
-	char train_file_name[1024];
-	char test_file_name[1024];
+	char train_file_directory[1024];
 
-	Options options = parse_cmd_options(argc, argv, train_file_name, test_file_name);
+	Options options = parse_cmd_options(argc, argv, train_file_directory);
 	options.print();
 
-	run_ccdr1(options, train_file_name, test_file_name);
+	run_ccdr1(options, train_file_directory);
 	return 0;
 }
 
