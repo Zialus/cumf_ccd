@@ -130,7 +130,7 @@ void run_ccdr1(Options &param, const char* train_file_directory) {
 	clock_t start, end;
 	double cpu_time_used;
 	DTYPE *h_a, *d_W, *h_c, *d_H, *d_R;
-	struct timeval t1, t2;
+//	struct timeval t1, t2;
 	SparseMatrix R;
 	MatData W, H;
 	TestData testdata;
@@ -143,7 +143,8 @@ void run_ccdr1(Options &param, const char* train_file_directory) {
 	puts("starts!");
 	double t0 = seconds();
 	ccdr1(R, W, H, testdata, param);
-	printf("\nTotal seconds: %.3f for F= %d\n\n", seconds() - t0, param.k);
+	double t1 = seconds();
+	printf("\nTotal seconds: %.3f for F= %d\n\n", t1 - t0, param.k);
 	return;
 }
 
