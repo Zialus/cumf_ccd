@@ -9,4 +9,4 @@ R_train_csc.data.bin
 R_train_csr.indptr.bin
 R_train_csr.indices.bin
 R_train_csr.data.bin
-6005940 correcttest.txt
+4003960 test.txt
