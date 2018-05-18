@@ -1,16 +1,16 @@
 ## How to build
 
-make clean && make
+mkdir build && cd build
+cmake .. && make
 
 ## How to run
 
-$./ccdp_gpu toy_example toy_example/test.ratings
+$ ./exec/ccdp_gpu data/toy_example data/toy_example/test.ratings
 (more examples below)
 
 ##Input format
 
-The input should be in binary format (See toy_example directory
-for details). 
+The input should be in binary format (See toy_example directory for details).
 
 "meta_modified_all" has the name of the input files.
 
@@ -27,7 +27,6 @@ line 4 has nnz in test dataset and test filename
     $ ./ccdp_gpu [options] [input file directoty containing meta_modified_all] [test file path]
 
     options:
-
         -k rank/feature : set the rank (default 10)
         -l lambda : set the regularization parameter lambda (default 0.05)
         -a tile size: set tile size for input matrix R (default 499999999)
@@ -37,8 +36,15 @@ line 4 has nnz in test dataset and test filename
 
 
 ## Examples:
+
 To run Netflix:
-./ccdp_gpu -T 1 -a 100000 -b 100000 -l .058 -k 40 -t 10 ../Netflix ../Netflix/netflix_mme_wo_header
+$ ./ccdp_gpu -T 1 -a 100000 -b 100000 -l .058 -k 40 -t 10 ../data/Netflix
 
 To run Yahoo Music:
-$./ccdp_gpu -T 1 -a 100000 -b 100000 -l 1.2 -k 40 -t 10 ../Yahoo_music ../Yahoo_music/test.txt
+$ ./ccdp_gpu -T 1 -a 100000 -b 100000 -l 1.2 -k 40 -t 10 ../data/Yahoo_music
+alternative?:
+$ ./ccdp_gpu -T 2 -a 220000 -b 240000 -l 1.2 -k 40 -t 2 ../data/Yahoo_music
+
+To run Movielens:
+$ ./ccdp_gpu -T 1 -a 100000 -b 100000 -l .05 -k 40 -t 15 ../data/ml-20m/
+
