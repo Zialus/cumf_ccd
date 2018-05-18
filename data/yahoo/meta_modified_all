@@ -1,0 +1,12 @@
+1948882 98212 
+103723717
+R_train_coo.data.bin
+R_train_coo.row.bin
+R_train_coo.col.bin
+R_train_csc.indptr.bin
+R_train_csc.indices.bin
+R_train_csc.data.bin
+R_train_csr.indptr.bin
+R_train_csr.indices.bin
+R_train_csr.data.bin
+11524858 test.txt
