@@ -4,10 +4,74 @@ sudo: required
 
 matrix:
   include:
-    - env: CUDA=6.5-19
-    - env: CUDA=7.0-28
-    - env: CUDA=7.5-18
-    - env: CUDA=8.0.61-1
+    - os: linux
+      env: CUDA=6.5-19
+    - os: linux
+      env: CUDA=7.0-28
+    - os: linux
+      env: CUDA=7.5-18
+    - os: linux
+      env: CUDA=8.0.61-1
+    - os : osx
+      osx_image: xcode7.3
+      env: CUDA=7.5.27
+      before_install:
+        - brew update
+        - brew install libomp
+        - source ./.travis.osx.sh
+      script:
+        - mkdir build
+        - cd build
+        - cmake .. -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_C_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY=/usr/local/opt/libomp/lib/libomp.dylib
+        - make
+    - os : osx
+      osx_image: xcode8
+      env: CUDA=8.0.61
+      before_install:
+        - brew update
+        - brew install libomp
+        - source ./.travis.osx.sh
+      script:
+        - mkdir build
+        - cd build
+        - cmake .. -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_C_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY=/usr/local/opt/libomp/lib/libomp.dylib
+        - make
+    - os : osx
+      osx_image: xcode8.3
+      env: CUDA=9.0.176
+      before_install:
+        - brew update
+        - brew install libomp
+        - source ./.travis.osx.sh
+      script:
+        - mkdir build
+        - cd build
+        - cmake .. -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_C_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY=/usr/local/opt/libomp/lib/libomp.dylib
+        - make
+    - os : osx
+      osx_image: xcode9.3
+      env: CUDA=9.1.128
+      before_install:
+        - brew update
+        - brew install libomp
+        - source ./.travis.osx.sh
+      script:
+        - mkdir build
+        - cd build
+        - cmake .. -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_C_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY=/usr/local/opt/libomp/lib/libomp.dylib
+        - make
+    - os : osx
+      osx_image: xcode9.4
+      env: CUDA=9.2.64
+      before_install:
+        - brew update
+        - brew install libomp
+        - source ./.travis.osx.sh
+      script:
+        - mkdir build
+        - cd build
+        - cmake .. -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_C_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY=/usr/local/opt/libomp/lib/libomp.dylib
+        - make
 
 before_install:
   ##### INSTALL CMAKE 3.11.3 #####
