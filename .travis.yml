@@ -49,7 +49,7 @@ matrix:
         - cmake .. -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_C_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY=/usr/local/opt/libomp/lib/libomp.dylib
         - make
     - os : osx
-      osx_image: xcode9.3
+      osx_image: xcode9.2
       env: CUDA=9.1.128
       before_install:
         - brew update
@@ -61,7 +61,7 @@ matrix:
         - cmake .. -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_C_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY=/usr/local/opt/libomp/lib/libomp.dylib
         - make
     - os : osx
-      osx_image: xcode9.4
+      osx_image: xcode9.3
       env: CUDA=9.2.64
       before_install:
         - brew update
