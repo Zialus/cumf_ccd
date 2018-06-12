@@ -13,7 +13,7 @@ case ${CUDA:0:3} in
 
 '6.5')
     travis_retry wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_6.5-14_amd64.deb
-    travis_retry sudo dpkg -i cuda-repo-ubuntu1404_7.0-28_amd64.deb
+    travis_retry sudo dpkg -i cuda-repo-ubuntu1404_6.5-14_amd64.deb
     ;;
 '7.0')
     travis_retry wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.0-28_amd64.deb
@@ -45,6 +45,9 @@ case ${CUDA:0:3} in
 
 esac
 
+CUDA_APT=${CUDA:0:3}
+CUDA_APT=${CUDA_APT/./-}
+
 travis_retry sudo apt-get update
-travis_retry sudo apt-get install cuda -y
+travis_retry sudo apt-get install cuda-${CUDA_APT} -y
 travis_retry sudo apt-get clean
