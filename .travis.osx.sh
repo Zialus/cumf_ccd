@@ -19,8 +19,3 @@ brew install p7zip
 
 brew install gnu-tar
 sudo gtar -x --skip-old-files -f CUDAMacOSXInstaller/CUDAMacOSXInstaller.app/Contents/Resources/payload/cuda_mac_installer_tk.tar.gz -C /
-
-export CUDA_HOME=/usr/local/cuda
-export LD_LIBRARY_PATH=${CUDA_HOME}/nvvm/lib64:${LD_LIBRARY_PATH}
-export LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
-export PATH=${CUDA_HOME}/bin:${PATH}

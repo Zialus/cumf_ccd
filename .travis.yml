@@ -1,17 +1,38 @@
-language: generic
-dist: trusty
+# https://github.com/gpuopenanalytics/libgdf/blob/master/travisci/install-cuda-trusty.sh
+# https://github.com/gpuopenanalytics/libgdf/blob/master/.travis.yml
+
+# https://github.com/JuliaGPU/CUDAapi.jl/blob/master/.travis.yml
+# https://github.com/JuliaGPU/CUDAapi.jl/blob/master/.travis.osx
+# https://github.com/JuliaGPU/CUDAapi.jl/blob/master/.travis.linux
+
+# https://github.com/tmcdonell/travis-scripts/blob/master/install-cuda-trusty.sh
+
+language: cpp
 sudo: required
 
 matrix:
   include:
     - os: linux
+      dist: trusty
       env: CUDA=6.5-19
     - os: linux
+      dist: trusty
       env: CUDA=7.0-28
     - os: linux
+      dist: trusty
       env: CUDA=7.5-18
     - os: linux
+      dist: xenial
       env: CUDA=8.0.61-1
+    - os: linux
+      dist: xenial
+      env: CUDA=9.0.176-1
+    - os: linux
+      dist: xenial
+      env: CUDA=9.1.85-1
+    - os: linux
+      dist: xenial
+      env: CUDA=9.2.88-1
     - os : osx
       osx_image: xcode7.3
       env: CUDA=7.5.27
@@ -61,7 +82,7 @@ matrix:
         - cmake .. -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_CXX_LIB_NAMES="omp" -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I/usr/local/opt/libomp/include" -DOpenMP_C_LIB_NAMES="omp" -DOpenMP_omp_LIBRARY=/usr/local/opt/libomp/lib/libomp.dylib
         - make
     - os : osx
-      osx_image: xcode9.3
+      osx_image: xcode9.2
       env: CUDA=9.2.64
       before_install:
         - brew update
@@ -74,25 +95,11 @@ matrix:
         - make
 
 before_install:
-  ##### INSTALL CMAKE 3.11.3 #####
-  - echo "Installing CMAKE"
-  - wget https://cmake.org/files/v3.11/cmake-3.11.3-Linux-x86_64.sh
-  - sudo sh cmake-3.11.3-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
-  ##### INSTALL CUDA #####
-  - echo "Installing CUDA library"
-  - wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_${CUDA}_amd64.deb
-  - sudo dpkg -i cuda-repo-ubuntu1404_${CUDA}_amd64.deb
-  - sudo apt-get update -qq
-  - export CUDA_APT=${CUDA:0:3}
-  - export CUDA_APT=${CUDA_APT/./-}
-  - sudo apt-get install -y cuda-drivers cuda-core-${CUDA_APT} cuda-cudart-dev-${CUDA_APT} cuda-cufft-dev-${CUDA_APT} cuda-cublas-dev-${CUDA_APT}
-  - sudo apt-get clean
-  - export CUDA_HOME=/usr/local/cuda-${CUDA:0:3}
-  - export LD_LIBRARY_PATH=${CUDA_HOME}/nvvm/lib64:${LD_LIBRARY_PATH}
-  - export LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
-  - export PATH=${CUDA_HOME}/bin:${PATH}
+  - source ./.travis.linux.sh
 
 install:
+  - export CUDA_HOME=/usr/local/cuda
+  - export PATH=${CUDA_HOME}/bin:${PATH}
   - nvcc --version
   - gcc --version
   - g++ --version
