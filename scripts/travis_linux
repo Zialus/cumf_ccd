@@ -43,8 +43,11 @@ case ${CUDA%-*} in
 
 esac
 
+CUDA_APT=${CUDA%-*}
+CUDA_APT=${CUDA_APT/./-}
+
 travis_retry sudo apt-get update
-travis_retry sudo apt-get install cuda
+travis_retry sudo apt-get install cuda-${CUDA_APT} -y
 travis_retry sudo apt-get clean
 
 set +x
