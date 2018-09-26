@@ -111,7 +111,8 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 	cudaEvent_t start, stop;
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
-	float mili = 0, copyTime = 0;
+	float mili = 0;
+//	float copyTime = 0;
 
 	//**************************CUDA COPY************************
 
@@ -177,7 +178,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 	checkCuda(cudaEventRecord(stop), __LINE__);
 	checkCuda(cudaDeviceSynchronize(), __LINE__);
 	checkCuda(cudaEventElapsedTime(&mili, start, stop), __LINE__);
-	copyTime = mili;
+//	copyTime = mili;
 
 	float ACSRTime = 0;
 //	float textureACSRTime = 0, innerLoopTime = 0;
@@ -239,7 +240,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 	}
 
 	mili = cuda_timerEnd(start, stop, streamT);
-	copyTime = mili;
+//	copyTime = mili;
 
 	//******************PreProcess for TILED binning*******************************
 	checkCuda(cudaEventRecord(start), __LINE__);
@@ -317,7 +318,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 		}
 	}
 	mili = cuda_timerEnd(start, stop, streamT);
-	copyTime = mili;
+//	copyTime = mili;
 
 	//********************STARTING CCD++ ALGORTIHM************************
 	printf("tileSize_H,W: %d, %d k: %d lambda:  %f\n", tileSize_H, tileSize_W,

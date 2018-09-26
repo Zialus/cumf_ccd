@@ -74,7 +74,7 @@ __global__ void CudaRankOneUpdate_gen(int const* __restrict__ R_colPtr,
 	if (c < numRowsPerGroup) {
 		c = rowGroupPtr[c];
 		DTYPE g = 0, h = 0;
-		DTYPE vc = v[c];
+//		DTYPE vc = v[c];
 		unsigned int colPtr = R_colPtr[c];
 		unsigned int nnz_row = R_rowLim[c] - R_colPtr[c]; //nnz_row = R_colPtr[c+1] - colPtr;
 

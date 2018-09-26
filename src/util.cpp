@@ -162,7 +162,7 @@ void SparseMatrix::read_compressed(std::string fname_cs_ptr,
 	std::ifstream f_indx(fname_cs_indx, std::ios::binary);
 	std::ifstream f_val(fname_cs_val, std::ios::binary);
 
-	for (std::size_t i = 0; i < this->nnz_; i++) {
+	for (long i = 0; i < this->nnz_; i++) {
 		f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned int));
 		f_val.read((char *) &cs_val.get()[i], sizeof(float));
 	}
@@ -172,7 +172,7 @@ void SparseMatrix::read_compressed(std::string fname_cs_ptr,
 	int prev, cur = 0;
 	max_nnz_in_one_dim = std::numeric_limits<long>::min();
 
-	for (std::size_t i = 0; i < num_elems_in_cs_ptr; i++) {
+	for (long i = 0; i < num_elems_in_cs_ptr; i++) {
 		prev = cur;
 		f_ptr.read((char*) &cur, sizeof(int));
 		cs_ptr.get()[i] = cur;
