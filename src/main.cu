@@ -126,10 +126,10 @@ Options parse_cmd_options(int argc, char **argv, char *train_file_directory) {
 void run_ccdr1(Options &param, const char* train_file_directory) {
 
 //	cudaEvent_t start, stop;
-	float elapsedTime;
-	clock_t start, end;
-	double cpu_time_used;
-	DTYPE *h_a, *d_W, *h_c, *d_H, *d_R;
+//	float elapsedTime;
+//	clock_t start, end;
+//	double cpu_time_used;
+//	DTYPE *h_a, *d_W, *h_c, *d_H, *d_R;
 //	struct timeval t1, t2;
 	SparseMatrix R;
 	MatData W, H;

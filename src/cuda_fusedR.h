@@ -140,7 +140,7 @@ __global__ void updateR_7(int const* __restrict__ R_colPtr,
 				g += ul_new * Rval;
 				h += ul_new * ul_new;
 			}
-			DTYPE newvj = 0;
+//			DTYPE newvj = 0;
 			g += __shfl_down(g, 16);
 			g += __shfl_down(g, 8);
 			g += __shfl_down(g, 4);

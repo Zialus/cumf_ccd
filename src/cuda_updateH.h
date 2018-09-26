@@ -112,7 +112,7 @@ __global__ void CudaRankOneUpdate_7(int const* __restrict__ R_colPtr,
 	if (c < numRowsPerGroup) {
 		c = rowGroupPtr[c];
 		DTYPE g = 0, h = 0;
-		DTYPE vc = v[c];
+//		DTYPE vc = v[c];
 		unsigned int colPtr = R_colPtr[c], nnz_row = R_rowLim[c] - colPtr; //nnz_row = R_colPtr[c+1] - colPtr;
 		for (long i = laneId; i < nnz_row; i += 64) {
 			int ii = R_rowIdx[colPtr + i];
@@ -120,7 +120,7 @@ __global__ void CudaRankOneUpdate_7(int const* __restrict__ R_colPtr,
 			g += u_val * R_val[colPtr + i];
 			h += u_val * u_val;
 		}
-		DTYPE newvj = 0;
+//		DTYPE newvj = 0;
 		g += __shfl_down(g, 16);
 		g += __shfl_down(g, 8);
 		g += __shfl_down(g, 4);

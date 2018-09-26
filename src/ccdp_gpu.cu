@@ -84,12 +84,15 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 	int k = param.k, maxiter = param.maxiter, inneriter = param.maxinneriter,
 			tileSize_H = param.tileSizeH, tileSize_W = param.tileSizeW;
 	DTYPE lambda = param.lambda, *d_R_val, *d_R_val_t, *d_gArrU, *d_hArrU,
-			*d_gArrV, *d_hArrV, *d_u, *d_v, oldobj = 0;
+			*d_gArrV, *d_hArrV, *d_u, *d_v;
+//	DTYPE oldobj = 0;
 	int LB[NUM_THRDS], UB[NUM_THRDS], LB_Rt[NUM_THRDS], UB_Rt[NUM_THRDS],
 			*d_R_colPtr, *d_R_rowPtr, *d_row_lim_R, *d_row_lim_Rt, sum = 0,
-			*d_test_row, *d_test_col, i, j;
-	DTYPE reg = 0, loss, *d_loss, *d_v_new, *d_Wt, *d_Ht, *d_W, *d_H,
-			*d_test_val, v, *d_pred_v, *d_rmse, *d_fundec_col;
+			*d_test_row, *d_test_col;
+//	int i, j;
+	DTYPE *d_loss, *d_v_new, *d_Wt, *d_Ht, *d_W, *d_H,
+			*d_test_val, *d_pred_v, *d_rmse;
+//	DTYPE reg = 0, loss, v, *d_fundec_col;
 	unsigned *d_R_rowIdx, *d_R_colIdx;
 
 	DTYPE *pred_v = (DTYPE*) malloc(T.nnz_ * sizeof(DTYPE));
@@ -115,7 +118,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 	checkCuda(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1), __LINE__);
 	size_t RCols_memsize = (R.cols_) * sizeof(DTYPE);
 	size_t RRows_memsize = (R.rows_) * sizeof(DTYPE);
-	size_t d_memsize = 1 * sizeof(DTYPE);
+//	size_t d_memsize = 1 * sizeof(DTYPE);
 	size_t R_colPtr_memsize = (R.cols_ + 1) * sizeof(int);
 	size_t R_rowPtr_memsize = (R.rows_ + 1) * sizeof(int);
 	size_t R_rowIdx_memsize = R.nnz_ * sizeof(unsigned);
@@ -176,8 +179,9 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 	checkCuda(cudaEventElapsedTime(&mili, start, stop), __LINE__);
 	copyTime = mili;
 
-	float ACSRTime = 0, textureACSRTime = 0, innerLoopTime = 0;
-	float ACSRPreProcessTime;
+	float ACSRTime = 0;
+//	float textureACSRTime = 0, innerLoopTime = 0;
+//	float ACSRPreProcessTime;
 
 	cudaStream_t streamT;
 	checkCuda(cudaStreamCreate(&streamT), __LINE__);
@@ -321,7 +325,8 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 
 	float mergeR = 0, mergeRT = 0, updateR = 0, updateRT = 0;
 	for (int oiter = 1; oiter <= maxiter; ++oiter) {
-		int early_stop = 0, kk = 0;
+//		int early_stop = 0;
+		int kk = 0;
 
 		for (int tt = 0; tt < k; ++tt) {
 			int t = tt;
@@ -406,7 +411,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 			}
 			int maxit = inneriter;
 
-			float init = ACSRTime;
+//			float init = ACSRTime;
 			int iter = 0;
 			//*************************inner iter***
 
