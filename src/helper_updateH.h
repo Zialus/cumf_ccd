@@ -59,9 +59,15 @@
  *
  */
 
+#ifndef HELPER_UPDATEH_H
+#define HELPER_UPDATEH_H
+
 #include "cuda_updateH.h"
 #include "utils_extra.hpp"
 #include <cmath>
+
+#include "common.h"
+#include "cuda_common.h"
 
 template<unsigned LB, unsigned UB>
 struct RANK_LOOP_R {
@@ -144,3 +150,5 @@ void helper_rankOneUpdate_v(int *d_R_colPtr, int *d_row_lim,
 				rowGroupPtr + sum, count[9], lambda, d_gArrV, d_hArrV, v_new);
 	}
 }
+
+#endif //HELPER_UPDATEH_H

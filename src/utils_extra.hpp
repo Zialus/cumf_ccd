@@ -59,8 +59,10 @@
  *
  */
 
-#ifndef UTILS_EXTRA_HPP_
-#define UTILS_EXTRA_HPP_
+#ifndef UTILS_EXTRA_HPP
+#define UTILS_EXTRA_HPP
+
+#include <utility>
 
 template<int A, int B>
 struct TMP_power {
@@ -95,4 +97,4 @@ struct LOOP<LB, LB> {
 	}
 };
 
-#endif /* UTILS_EXTRA_HPP_ */
+#endif //UTILS_EXTRA_HPP

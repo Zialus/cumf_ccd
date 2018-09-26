@@ -59,8 +59,8 @@
  *
  */
 
-#ifndef UTIL
-#define UTIL
+#ifndef UTIL_H
+#define UTIL_H
 
 #include <iostream>
 #include <fstream>
@@ -71,14 +71,13 @@
 #include <omp.h>
 #include <cassert>
 
+#include "common.h"
+
 inline double seconds() {
 	struct timeval tp;
 	gettimeofday(&tp, NULL);
 	return ((double) tp.tv_sec + (double) tp.tv_usec * 1.e-6);
 }
-
-#define DTYPE float
-//#define DTYPE double
 
 using std::vector;
 using std::ifstream;
@@ -203,5 +202,5 @@ public:
 		std::cout << "lambda = " << lambda << '\n';
 	}
 };
-#endif
 
+#endif //UTIL_H

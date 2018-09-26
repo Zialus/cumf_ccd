@@ -59,6 +59,14 @@
  *
  */
 
+#ifndef CUDA_FUSEDR_H
+#define CUDA_FUSEDR_H
+
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+
+#include "common.h"
+
 template<bool UseCache, unsigned POWER, unsigned Nth_POWER>
 __global__ void updateR_gen(int const* __restrict__ R_colPtr,
 		int const* __restrict__ R_rowLim, unsigned * R_rowIdx, DTYPE *R_val,
@@ -174,3 +182,5 @@ __global__ void updateR_7(int const* __restrict__ R_colPtr,
 		}
 	}
 }
+
+#endif //CUDA_FUSEDR_H

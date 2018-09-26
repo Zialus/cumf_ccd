@@ -59,11 +59,9 @@
  *
  */
 
-#include "device_utilities.h"
-#include "util.h"
 #include <cuda.h>
-#include <vector>
 
+#include "device_utilities.h"
 #include "helper_fusedR.h"
 #include "helper_updateH.h"
 

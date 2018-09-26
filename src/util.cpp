@@ -60,6 +60,7 @@
  */
 
 #include "util.h"
+
 #define type DTYPE
 #define MALLOC(type, size) (type*)malloc(sizeof(type)*(size))
 
@@ -198,5 +199,3 @@ SparseMatrix SparseMatrix::get_shallow_transpose() {
 
 	return shallow_transpose;
 }
-
-

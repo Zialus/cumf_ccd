@@ -59,6 +59,14 @@
  *
  */
 
+#ifndef CUDA_UPDATEH_H
+#define CUDA_UPDATEH_H
+
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+
+#include "common.h"
+
 template<bool UseCache, unsigned POWER, unsigned Nth_POWER>
 __global__ void CudaRankOneUpdate_gen(int const* __restrict__ R_colPtr,
 		int const* __restrict__ R_rowLim,
@@ -147,3 +155,5 @@ __global__ void CudaRankOneUpdate_7(int const* __restrict__ R_colPtr,
 		}
 	}
 }
+
+#endif //CUDA_UPDATEH_H

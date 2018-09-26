@@ -59,10 +59,15 @@
  *
  */
 
-#include "util.h"
-const int THREADLOAD = 2;
+#ifndef DEVICE_UTILITIES_H
+#define DEVICE_UTILITIES_H
 
-int NUM_THRDS = 10;
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+
+#include "util.h"
+#include "common.h"
+
 void cuda_timerStart(cudaEvent_t start, cudaStream_t streamT) {
 	cudaEventRecord(start, streamT);
 }
@@ -249,3 +254,5 @@ __global__ void GPU_rmse(int const* __restrict__ test_row,
 		rmse[c] = (pred_v[c] - test_val[c]) * (pred_v[c] - test_val[c]);
 	}
 }
+
+#endif //DEVICE_UTILITIES_H

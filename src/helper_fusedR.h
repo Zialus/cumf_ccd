@@ -59,14 +59,16 @@
  *
  */
 
+#ifndef HELPER_FUSEDR_H
+#define HELPER_FUSEDR_H
+
 #include "cuda_fusedR.h"
 #include "utils_extra.hpp"
 #include <cmath>
 
-const int maxThreadsPerBlock = 1024;
-int BLOCKSIZE = 128;
-cudaStream_t stream[10 + 1]; //hard coded
-dim3 block(BLOCKSIZE, 1, 1), grid(1, 1, 1);
+#include "common.h"
+#include "cuda_common.h"
+
 void create_stream() {
 	for (int i = 0; i < NUM_THRDS; i++) {
 		cudaStreamCreate(&(stream[i]));
@@ -155,3 +157,5 @@ void helper_UpdateR(int *d_R_colPtr, int *d_row_lim, unsigned *d_R_rowIdx,
 				d_hArrV, v_new, Wt_p, Ht_p, t);
 	}
 }
+
+#endif //HELPER_FUSEDR_H
