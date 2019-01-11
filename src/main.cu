@@ -66,61 +66,61 @@
 #include <sys/time.h>
 
 void print_help_and_exit() {
-	printf("options:\n\
-	    -k rank/feature : set the rank (default 10)\n\
+    printf("options:\n\
+        -k rank/feature : set the rank (default 10)\n\
         -l lambda : set the regularization parameter lambda (default 0.05)\n\
         -a tile size: set tile size for input matrix R (default 499999999)\n\
         -b tile size: set tile size for input matrix R Transpose (default 499999999)\n\
         -t max_iter: number of iterations (default 5)\n\
         -T max_iter: number of inner iterations (default 1)\n");
-	exit(1);
+    exit(1);
 }
 
 Options parse_cmd_options(int argc, char **argv, char *train_file_directory) {
-	Options param;
-	int i;
-	//handle options
-	for (i = 1; i < argc; i++) {
-		if (argv[i][0] != '-')
-			break;
-		if (++i >= argc)
-			print_help_and_exit();
-		switch (argv[i - 1][1]) {
-		case 'k':
-			param.k = atoi(argv[i]);
-			break;
-		case 'l':
-			param.lambda = atof(argv[i]);
-			break;
+    Options param;
+    int i;
+    //handle options
+    for (i = 1; i < argc; i++) {
+        if (argv[i][0] != '-')
+            break;
+        if (++i >= argc)
+            print_help_and_exit();
+        switch (argv[i - 1][1]) {
+        case 'k':
+            param.k = atoi(argv[i]);
+            break;
+        case 'l':
+            param.lambda = atof(argv[i]);
+            break;
 
-		case 't':
-			param.maxiter = atoi(argv[i]);
-			break;
+        case 't':
+            param.maxiter = atoi(argv[i]);
+            break;
 
-		case 'T':
-			param.maxinneriter = atoi(argv[i]);
-			break;
+        case 'T':
+            param.maxinneriter = atoi(argv[i]);
+            break;
 
-		case 'a':
-			param.tileSizeH = atoi(argv[i]);
-			break;
+        case 'a':
+            param.tileSizeH = atoi(argv[i]);
+            break;
 
-		case 'b':
-			param.tileSizeW = atoi(argv[i]);
-			break;
+        case 'b':
+            param.tileSizeW = atoi(argv[i]);
+            break;
 
-		default:
-			fprintf(stderr, "unknown option: -%c\n", argv[i - 1][1]);
-			print_help_and_exit();
-			break;
-		}
-	}
+        default:
+            fprintf(stderr, "unknown option: -%c\n", argv[i - 1][1]);
+            print_help_and_exit();
+            break;
+        }
+    }
 
-	if (i >= argc)
-		print_help_and_exit();
+    if (i >= argc)
+        print_help_and_exit();
 
-	strcpy(train_file_directory, argv[i]);
-	return param;
+    strcpy(train_file_directory, argv[i]);
+    return param;
 }
 
 void run_ccdr1(Options &param, const char* train_file_directory) {
@@ -131,30 +131,30 @@ void run_ccdr1(Options &param, const char* train_file_directory) {
 //	double cpu_time_used;
 //	DTYPE *h_a, *d_W, *h_c, *d_H, *d_R;
 //	struct timeval t1, t2;
-	SparseMatrix R;
-	MatData W, H;
-	TestData testdata;
+    SparseMatrix R;
+    MatData W, H;
+    TestData testdata;
 
-	load_from_binary(train_file_directory, R, testdata);
-	// W, H  here are k*m, k*n
-	init_random(W, param.k, R.rows_);
-	init_random(H, param.k, R.cols_);
+    load_from_binary(train_file_directory, R, testdata);
+    // W, H  here are k*m, k*n
+    init_random(W, param.k, R.rows_);
+    init_random(H, param.k, R.cols_);
 
-	puts("starts!");
-	double t0 = seconds();
-	ccdr1(R, W, H, testdata, param);
-	double t1 = seconds();
-	printf("\nTotal seconds: %.3f for F= %d\n\n", t1 - t0, param.k);
-	return;
+    puts("starts!");
+    double t0 = seconds();
+    ccdr1(R, W, H, testdata, param);
+    double t1 = seconds();
+    printf("\nTotal seconds: %.3f for F= %d\n\n", t1 - t0, param.k);
+    return;
 }
 
 int main(int argc, char* argv[]) {
-	char train_file_directory[1024];
+    char train_file_directory[1024];
 
-	Options options = parse_cmd_options(argc, argv, train_file_directory);
-	options.print();
+    Options options = parse_cmd_options(argc, argv, train_file_directory);
+    options.print();
 
-	run_ccdr1(options, train_file_directory);
-	return 0;
+    run_ccdr1(options, train_file_directory);
+    return 0;
 }
 

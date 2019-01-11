@@ -74,9 +74,9 @@
 #include "common.h"
 
 inline double seconds() {
-	struct timeval tp;
-	gettimeofday(&tp, NULL);
-	return ((double) tp.tv_sec + (double) tp.tv_usec * 1.e-6);
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    return ((double) tp.tv_sec + (double) tp.tv_usec * 1.e-6);
 }
 
 using std::vector;
@@ -91,7 +91,7 @@ using VecInt = vector<int>;
 using MatInt = vector<VecInt>;
 
 void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
-		Options &options);
+        Options &options);
 void load_from_binary(const char* srcdir, SparseMatrix &R, TestData &data);
 MatData load_mat_t(FILE *fp, bool row_major = true);
 void init_random(MatData &X, long k, long n);
@@ -99,108 +99,108 @@ void init_random(MatData &X, long k, long n);
 class SparseMatrix {
 
 public:
-	long rows_, cols_, nnz_, max_row_nnz_, max_col_nnz_;
+    long rows_, cols_, nnz_, max_row_nnz_, max_col_nnz_;
 
-	void read_binary_file(long rows, long cols, long nnz,
-			std::string fname_data, std::string fname_row,
-			std::string fname_col, std::string fname_csr_row_ptr,
-			std::string fname_csr_col_indx, std::string fname_csr_val,
-			std::string fname_csc_col_ptr, std::string fname_csc_row_indx,
-			std::string fname_csc_val);
+    void read_binary_file(long rows, long cols, long nnz,
+            std::string fname_data, std::string fname_row,
+            std::string fname_col, std::string fname_csr_row_ptr,
+            std::string fname_csr_col_indx, std::string fname_csr_val,
+            std::string fname_csc_col_ptr, std::string fname_csc_row_indx,
+            std::string fname_csc_val);
 
-	SparseMatrix get_shallow_transpose();
+    SparseMatrix get_shallow_transpose();
 
-	int* get_csc_col_ptr() const {
-		return csc_col_ptr_.get();
-	}
+    int* get_csc_col_ptr() const {
+        return csc_col_ptr_.get();
+    }
 
-	unsigned int* get_csc_row_indx() const {
-		return csc_row_indx_.get();
-	}
+    unsigned int* get_csc_row_indx() const {
+        return csc_row_indx_.get();
+    }
 
-	DTYPE* get_csc_val() const {
-		return csc_val_.get();
-	}
+    DTYPE* get_csc_val() const {
+        return csc_val_.get();
+    }
 
-	unsigned int* get_csr_col_indx() const {
-		return csr_col_indx_.get();
-	}
+    unsigned int* get_csr_col_indx() const {
+        return csr_col_indx_.get();
+    }
 
-	int* get_csr_row_ptr() const {
-		return csr_row_ptr_.get();
-	}
+    int* get_csr_row_ptr() const {
+        return csr_row_ptr_.get();
+    }
 
-	DTYPE* get_csr_val() const {
-		return csr_val_.get();
-	}
+    DTYPE* get_csr_val() const {
+        return csr_val_.get();
+    }
 
 private:
 
-	void read_compressed(std::string fname_cs_ptr, std::string fname_cs_indx,
-			std::string fname_cs_val, std::shared_ptr<int>&cs_ptr,
-			std::shared_ptr<unsigned int> &cs_indx,
-			std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr,
-			long &max_nnz_in_one_dim);
+    void read_compressed(std::string fname_cs_ptr, std::string fname_cs_indx,
+            std::string fname_cs_val, std::shared_ptr<int>&cs_ptr,
+            std::shared_ptr<unsigned int> &cs_indx,
+            std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr,
+            long &max_nnz_in_one_dim);
 
-	std::shared_ptr<int> csc_col_ptr_, csr_row_ptr_, col_nnz_, row_nnz_;
-	std::shared_ptr<DTYPE> csr_val_, csc_val_;
-	std::shared_ptr<unsigned int> csc_row_indx_, csr_col_indx_;
+    std::shared_ptr<int> csc_col_ptr_, csr_row_ptr_, col_nnz_, row_nnz_;
+    std::shared_ptr<DTYPE> csr_val_, csc_val_;
+    std::shared_ptr<unsigned int> csc_row_indx_, csr_col_indx_;
 };
 
 class TestData {
 
 public:
-	void read(long rows, long cols, long nnz, std::string filename) {
-		this->rows_ = rows;
-		this->cols_ = cols;
-		this->nnz_ = nnz;
+    void read(long rows, long cols, long nnz, std::string filename) {
+        this->rows_ = rows;
+        this->cols_ = cols;
+        this->nnz_ = nnz;
 
-		test_row = std::unique_ptr<int[]>(new int[nnz]);
-		test_col = std::unique_ptr<int[]>(new int[nnz]);
-		test_val = std::unique_ptr<DTYPE[]>(new DTYPE[nnz]);
+        test_row = std::unique_ptr<int[]>(new int[nnz]);
+        test_col = std::unique_ptr<int[]>(new int[nnz]);
+        test_val = std::unique_ptr<DTYPE[]>(new DTYPE[nnz]);
 
-		ifstream fp(filename);
-		for (long idx = 0; idx < nnz; ++idx) {
-			fp >> test_row[idx] >> test_col[idx] >> test_val[idx];
-		}
-	}
+        ifstream fp(filename);
+        for (long idx = 0; idx < nnz; ++idx) {
+            fp >> test_row[idx] >> test_col[idx] >> test_val[idx];
+        }
+    }
 
-	int* getTestCol() const {
-		return test_col.get();
-	}
+    int* getTestCol() const {
+        return test_col.get();
+    }
 
-	int* getTestRow() const {
-		return test_row.get();
-	}
+    int* getTestRow() const {
+        return test_row.get();
+    }
 
-	DTYPE* getTestVal() const {
-		return test_val.get();
-	}
+    DTYPE* getTestVal() const {
+        return test_val.get();
+    }
 
-	long rows_ { 0 }, cols_ { 0 }, nnz_ { 0 };
+    long rows_ { 0 }, cols_ { 0 }, nnz_ { 0 };
 
 private:
 
-	std::unique_ptr<int[]> test_row, test_col;
-	std::unique_ptr<DTYPE[]> test_val;
+    std::unique_ptr<int[]> test_row, test_col;
+    std::unique_ptr<DTYPE[]> test_val;
 };
 
 class Options {
 public:
-	int k = 10;
-	int maxiter = 5;
-	int maxinneriter = 1;DTYPE lambda = .05;
-	int tileSizeW = 499999999;
-	int tileSizeH = 499999999;
+    int k = 10;
+    int maxiter = 5;
+    int maxinneriter = 1;DTYPE lambda = .05;
+    int tileSizeW = 499999999;
+    int tileSizeH = 499999999;
 
-	void print() {
-		std::cout << "k = " << k << '\n';
-		std::cout << "iterinner = " << maxinneriter << '\n';
-		std::cout << "outeriter = " << maxiter << '\n';
-		std::cout << "tsw = " << tileSizeW << '\n';
-		std::cout << "tsh = " << tileSizeH << '\n';
-		std::cout << "lambda = " << lambda << '\n';
-	}
+    void print() {
+        std::cout << "k = " << k << '\n';
+        std::cout << "iterinner = " << maxinneriter << '\n';
+        std::cout << "outeriter = " << maxiter << '\n';
+        std::cout << "tsw = " << tileSizeW << '\n';
+        std::cout << "tsh = " << tileSizeH << '\n';
+        std::cout << "lambda = " << lambda << '\n';
+    }
 };
 
 #endif //UTIL_H

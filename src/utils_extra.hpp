@@ -66,35 +66,35 @@
 
 template<int A, int B>
 struct TMP_power {
-	static const int value = A * TMP_power<A, B - 1>::value;
+    static const int value = A * TMP_power<A, B - 1>::value;
 };
 template<int A>
 struct TMP_power<A, 0> {
-	static const int value = 1;
+    static const int value = 1;
 };
 
 template<class T>
 inline constexpr T cexp_pow(const T base, unsigned const exponent) {
-	// (parentheses not required in next line)
-	return (exponent == 0) ? 1 : (base * pow(base, exponent - 1));
+    // (parentheses not required in next line)
+    return (exponent == 0) ? 1 : (base * pow(base, exponent - 1));
 }
 
 template<unsigned LB, unsigned UB>
 struct LOOP {
-	template<typename FUNCTOR>
-	LOOP(FUNCTOR &&fun) {
-		static_assert(LB<UB,"Lower Bound should be less than Upper bound");
-		fun(LB);
-		LOOP<LB + 1, UB>(std::forward < FUNCTOR > (fun));
-	}
+    template<typename FUNCTOR>
+    LOOP(FUNCTOR &&fun) {
+        static_assert(LB<UB,"Lower Bound should be less than Upper bound");
+        fun(LB);
+        LOOP<LB + 1, UB>(std::forward < FUNCTOR > (fun));
+    }
 };
 
 template<unsigned LB>
 struct LOOP<LB, LB> {
-	template<typename FUNCTOR>
-	LOOP(FUNCTOR /*fun*/) {
-		//do nothing
-	}
+    template<typename FUNCTOR>
+    LOOP(FUNCTOR /*fun*/) {
+        //do nothing
+    }
 };
 
 #endif //UTILS_EXTRA_HPP

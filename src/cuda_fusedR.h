@@ -69,118 +69,118 @@
 
 template<bool UseCache, unsigned POWER, unsigned Nth_POWER>
 __global__ void updateR_gen(int const* __restrict__ R_colPtr,
-		int const* __restrict__ R_rowLim, unsigned * R_rowIdx, DTYPE *R_val,
-		const DTYPE * __restrict__ u, const DTYPE * __restrict__ v, int m,
-		int n, bool add, int * __restrict__ rowGroupPtr, int numRowsPerGroup,
-		DTYPE lambda, DTYPE * __restrict__ g_arr, DTYPE * __restrict__ h_arr,
-		const DTYPE * __restrict__ u_new, const DTYPE * __restrict__ Wt_p,
-		const DTYPE * __restrict__ Ht_p, int t) {
-	unsigned int tId = threadIdx.x;
-	unsigned int laneId = tId & (POWER - 1);
-	unsigned int c = (blockIdx.x * blockDim.x + tId) >> (Nth_POWER);
+        int const* __restrict__ R_rowLim, unsigned * R_rowIdx, DTYPE *R_val,
+        const DTYPE * __restrict__ u, const DTYPE * __restrict__ v, int m,
+        int n, bool add, int * __restrict__ rowGroupPtr, int numRowsPerGroup,
+        DTYPE lambda, DTYPE * __restrict__ g_arr, DTYPE * __restrict__ h_arr,
+        const DTYPE * __restrict__ u_new, const DTYPE * __restrict__ Wt_p,
+        const DTYPE * __restrict__ Ht_p, int t) {
+    unsigned int tId = threadIdx.x;
+    unsigned int laneId = tId & (POWER - 1);
+    unsigned int c = (blockIdx.x * blockDim.x + tId) >> (Nth_POWER);
 
-	if (c < numRowsPerGroup) {
-		c = rowGroupPtr[c];
-		DTYPE g = 0, h = 0;
-		DTYPE vc = v[c];
-		DTYPE vc_p = Ht_p[c];
-		unsigned int colPtr = R_colPtr[c];
-		unsigned int nnz_row = R_rowLim[c] - R_colPtr[c]; //nnz_row = R_colPtr[c+1] - colPtr;
+    if (c < numRowsPerGroup) {
+        c = rowGroupPtr[c];
+        DTYPE g = 0, h = 0;
+        DTYPE vc = v[c];
+        DTYPE vc_p = Ht_p[c];
+        unsigned int colPtr = R_colPtr[c];
+        unsigned int nnz_row = R_rowLim[c] - R_colPtr[c]; //nnz_row = R_colPtr[c+1] - colPtr;
 
-		if (add) {
-			for (unsigned short i = laneId; i < nnz_row; i += POWER) {
-				int ii = R_rowIdx[colPtr + i];
-				DTYPE &Rval = R_val[colPtr + i];
-				DTYPE u_val = u[ii];
-				if (t > 0)
-					Rval -= Wt_p[ii] * vc_p;
-				Rval += u_val * vc;
-				DTYPE ul_new = u_new[ii];
-				g += ul_new * R_val[colPtr + i];
-				h += ul_new * ul_new;
-			}
+        if (add) {
+            for (unsigned short i = laneId; i < nnz_row; i += POWER) {
+                int ii = R_rowIdx[colPtr + i];
+                DTYPE &Rval = R_val[colPtr + i];
+                DTYPE u_val = u[ii];
+                if (t > 0)
+                    Rval -= Wt_p[ii] * vc_p;
+                Rval += u_val * vc;
+                DTYPE ul_new = u_new[ii];
+                g += ul_new * R_val[colPtr + i];
+                h += ul_new * ul_new;
+            }
 #pragma unroll Nth_POWER
-			for (unsigned i = (POWER) >> 1; i >= 1; i = i >> 1) {
-				g += __shfl_down(g, i);
-				h += __shfl_down(h, i);
-			}
-			if (laneId == 0) {
-				h += lambda * (nnz_row);
-				g_arr[c] += g;
-				h_arr[c] += h;
-			}
-		} else {
-			for (unsigned short i = laneId; i < nnz_row; i += POWER)
-				R_val[colPtr + i] -= u[R_rowIdx[colPtr + i]] * vc;
-		}
-	}
+            for (unsigned i = (POWER) >> 1; i >= 1; i = i >> 1) {
+                g += __shfl_down(g, i);
+                h += __shfl_down(h, i);
+            }
+            if (laneId == 0) {
+                h += lambda * (nnz_row);
+                g_arr[c] += g;
+                h_arr[c] += h;
+            }
+        } else {
+            for (unsigned short i = laneId; i < nnz_row; i += POWER)
+                R_val[colPtr + i] -= u[R_rowIdx[colPtr + i]] * vc;
+        }
+    }
 }
 
 template<bool UseCache>
 __global__ void updateR_7(int const* __restrict__ R_colPtr,
-		int const* __restrict__ R_rowLim, unsigned * R_rowIdx, DTYPE *R_val,
-		const DTYPE * __restrict__ u, const DTYPE * __restrict__ v, int m,
-		int n, bool add, int * __restrict__ rowGroupPtr, int numRowsPerGroup,
-		DTYPE lambda, DTYPE * __restrict__ g_arr, DTYPE * __restrict__ h_arr,
-		const DTYPE * __restrict__ u_new, const DTYPE * __restrict__ Wt_p,
-		const DTYPE * __restrict__ Ht_p, int t) {
-	unsigned int tId = threadIdx.x;
-	unsigned int laneId = tId & 63;
-	unsigned int c = (blockIdx.x * blockDim.x + tId) >> 6;
-	extern __shared__   volatile DTYPE SD[];
+        int const* __restrict__ R_rowLim, unsigned * R_rowIdx, DTYPE *R_val,
+        const DTYPE * __restrict__ u, const DTYPE * __restrict__ v, int m,
+        int n, bool add, int * __restrict__ rowGroupPtr, int numRowsPerGroup,
+        DTYPE lambda, DTYPE * __restrict__ g_arr, DTYPE * __restrict__ h_arr,
+        const DTYPE * __restrict__ u_new, const DTYPE * __restrict__ Wt_p,
+        const DTYPE * __restrict__ Ht_p, int t) {
+    unsigned int tId = threadIdx.x;
+    unsigned int laneId = tId & 63;
+    unsigned int c = (blockIdx.x * blockDim.x + tId) >> 6;
+    extern __shared__   volatile DTYPE SD[];
 
-	if (c < numRowsPerGroup) {
-		c = rowGroupPtr[c];
-		DTYPE g = 0, h = 0;
-		DTYPE vc = v[c];
-		DTYPE vc_p = Ht_p[c];
-		unsigned int colPtr = R_colPtr[c], nnz_row = R_rowLim[c] - colPtr; //nnz_row = R_colPtr[c+1] - colPtr;
-		if (add) {
+    if (c < numRowsPerGroup) {
+        c = rowGroupPtr[c];
+        DTYPE g = 0, h = 0;
+        DTYPE vc = v[c];
+        DTYPE vc_p = Ht_p[c];
+        unsigned int colPtr = R_colPtr[c], nnz_row = R_rowLim[c] - colPtr; //nnz_row = R_colPtr[c+1] - colPtr;
+        if (add) {
 
-			for (long i = laneId; i < nnz_row; i += 64) {
-				int ii = R_rowIdx[colPtr + i];
-				DTYPE &Rval = R_val[colPtr + i];
-				DTYPE u_val = u[ii];
-				if (t > 0)
-					Rval -= Wt_p[ii] * vc_p;
-				Rval += u_val * vc;
-				DTYPE ul_new = u_new[ii];
-				g += ul_new * Rval;
-				h += ul_new * ul_new;
-			}
+            for (long i = laneId; i < nnz_row; i += 64) {
+                int ii = R_rowIdx[colPtr + i];
+                DTYPE &Rval = R_val[colPtr + i];
+                DTYPE u_val = u[ii];
+                if (t > 0)
+                    Rval -= Wt_p[ii] * vc_p;
+                Rval += u_val * vc;
+                DTYPE ul_new = u_new[ii];
+                g += ul_new * Rval;
+                h += ul_new * ul_new;
+            }
 //			DTYPE newvj = 0;
-			g += __shfl_down(g, 16);
-			g += __shfl_down(g, 8);
-			g += __shfl_down(g, 4);
-			g += __shfl_down(g, 2);
-			g += __shfl_down(g, 1);
+            g += __shfl_down(g, 16);
+            g += __shfl_down(g, 8);
+            g += __shfl_down(g, 4);
+            g += __shfl_down(g, 2);
+            g += __shfl_down(g, 1);
 
-			h += __shfl_down(h, 16);
-			h += __shfl_down(h, 8);
-			h += __shfl_down(h, 4);
-			h += __shfl_down(h, 2);
-			h += __shfl_down(h, 1);
+            h += __shfl_down(h, 16);
+            h += __shfl_down(h, 8);
+            h += __shfl_down(h, 4);
+            h += __shfl_down(h, 2);
+            h += __shfl_down(h, 1);
 
-			if ((tId & 31) == 0) {
-				SD[tId >> 5] = g;
-				SD[blockDim.x / 32 + (tId >> 5)] = h;
-			}
-			__syncthreads();
-			if (laneId == 0) {
-				g += SD[(tId >> 5) + 1];
-				h += SD[(blockDim.x / 32 + (tId >> 5)) + 1];
-				h += lambda * (nnz_row);
-				g_arr[c] += g;
-				h_arr[c] += h;
-			}
-		} else {
-			for (long i = laneId; i < nnz_row; i += 64) {
-				int ii = R_rowIdx[colPtr + i];
-				R_val[colPtr + i] -= u[ii] * vc;
+            if ((tId & 31) == 0) {
+                SD[tId >> 5] = g;
+                SD[blockDim.x / 32 + (tId >> 5)] = h;
+            }
+            __syncthreads();
+            if (laneId == 0) {
+                g += SD[(tId >> 5) + 1];
+                h += SD[(blockDim.x / 32 + (tId >> 5)) + 1];
+                h += lambda * (nnz_row);
+                g_arr[c] += g;
+                h_arr[c] += h;
+            }
+        } else {
+            for (long i = laneId; i < nnz_row; i += 64) {
+                int ii = R_rowIdx[colPtr + i];
+                R_val[colPtr + i] -= u[ii] * vc;
 
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 #endif //CUDA_FUSEDR_H
