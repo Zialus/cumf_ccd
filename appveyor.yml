@@ -23,18 +23,18 @@ environment:
     GENERATOR: Visual Studio 14 2015 Win64
     TOOLSET: v140
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-  - CUDA_VERSION: '7.5'
-    GENERATOR: Visual Studio 12 2013 Win64
-    TOOLSET: v120
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-  - CUDA_VERSION: '7.0'
-    GENERATOR: Visual Studio 12 2013 Win64
-    TOOLSET: v120
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-  - CUDA_VERSION: '6.5'
-    GENERATOR: Visual Studio 12 2013 Win64
-    TOOLSET: v120
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+#  - CUDA_VERSION: '7.5'
+#    GENERATOR: Visual Studio 12 2013 Win64
+#    TOOLSET: v120
+#    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+#  - CUDA_VERSION: '7.0'
+#    GENERATOR: Visual Studio 12 2013 Win64
+#    TOOLSET: v120
+#    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+#  - CUDA_VERSION: '6.5'
+#    GENERATOR: Visual Studio 12 2013 Win64
+#    TOOLSET: v120
+#    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
 
 init:
   - ps: systeminfo /fo csv | ConvertFrom-Csv | select OS*, System* | Format-List
