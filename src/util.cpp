@@ -79,23 +79,23 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     fscanf(fp, "%ld %ld", &m, &n);
 
     fscanf(fp, "%ld", &nnz);
-    fscanf(fp, "%s", buf);
+    fscanf(fp, "%1023s", buf);
     sprintf(binary_filename_val, "%s/%s", srcdir, buf);
-    fscanf(fp, "%s", buf);
+    fscanf(fp, "%1023s", buf);
     sprintf(binary_filename_row, "%s/%s", srcdir, buf);
-    fscanf(fp, "%s", buf);
+    fscanf(fp, "%1023s", buf);
     sprintf(binary_filename_col, "%s/%s", srcdir, buf);
-    fscanf(fp, "%s", buf);
+    fscanf(fp, "%1023s", buf);
     sprintf(binary_filename_rowptr, "%s/%s", srcdir, buf);
-    fscanf(fp, "%s", buf);
+    fscanf(fp, "%1023s", buf);
     sprintf(binary_filename_colidx, "%s/%s", srcdir, buf);
-    fscanf(fp, "%s", buf);
+    fscanf(fp, "%1023s", buf);
     sprintf(binary_filename_csrval, "%s/%s", srcdir, buf);
-    fscanf(fp, "%s", buf);
+    fscanf(fp, "%1023s", buf);
     sprintf(binary_filename_colptr, "%s/%s", srcdir, buf);
-    fscanf(fp, "%s", buf);
+    fscanf(fp, "%1023s", buf);
     sprintf(binary_filename_rowidx, "%s/%s", srcdir, buf);
-    fscanf(fp, "%s", buf);
+    fscanf(fp, "%1023s", buf);
     sprintf(binary_filename_cscval, "%s/%s", srcdir, buf);
 
     R.read_binary_file(m, n, nnz, binary_filename_val, binary_filename_row,
@@ -103,7 +103,7 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
                        binary_filename_csrval, binary_filename_colptr,
                        binary_filename_rowidx, binary_filename_cscval);
 
-    if (fscanf(fp, "%ld %s", &nnz, buf) != EOF) {
+    if (fscanf(fp, "%ld %1023s", &nnz, buf) != EOF) {
         sprintf(filename, "%s/%s", srcdir, buf);
         data.read(m, n, nnz, filename);
     }
