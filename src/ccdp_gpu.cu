@@ -61,6 +61,7 @@
 
 #include <cuda.h>
 
+#include "utilities.h"
 #include "device_utilities.h"
 #include "helper_fusedR.h"
 #include "helper_updateH.h"
