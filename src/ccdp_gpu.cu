@@ -216,26 +216,28 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T,
 
     //******************PreProcess for TILED binning*******************************
     checkCuda(cudaEventRecord(start), __LINE__);
-    int* tiled_count[total_tileInRows], * tiled_count_Rt[total_tileInCols];
+    int** tiled_count = new int* [total_tileInRows];
+    int** tiled_count_Rt = new int* [total_tileInCols];
     for (int i = 0; i < total_tileInRows; ++i) {
-        tiled_count[i] = (int*) malloc(NUM_THRDS * sizeof(int));
+        tiled_count[i] = new int[NUM_THRDS];
     }
     for (int i = 0; i < total_tileInCols; ++i) {
-        tiled_count_Rt[i] = (int*) malloc(NUM_THRDS * sizeof(int));
+        tiled_count_Rt[i] = new int[NUM_THRDS];
     }
 
-    int* tiled_rowGroupPtr, * tiled_rowGroupPtr_Rt;
+    int* tiled_rowGroupPtr;
+    int* tiled_rowGroupPtr_Rt;
 
     // Extract CSR group info on CPU
-    int* tiled_host_rowGroupPtr[total_tileInRows],
-            * tiled_host_rowGroupPtr_Rt[total_tileInCols];
+    int** tiled_host_rowGroupPtr = new int* [total_tileInRows];
+    int** tiled_host_rowGroupPtr_Rt = new int* [total_tileInCols];
 
     for (int i = 0; i < total_tileInRows; ++i) {
-        tiled_host_rowGroupPtr[i] = (int*) malloc(NUM_THRDS * R.cols_ * sizeof(int));
+        tiled_host_rowGroupPtr[i] = new int[NUM_THRDS * R.cols_];
     }
 
     for (int i = 0; i < total_tileInCols; ++i) {
-        tiled_host_rowGroupPtr_Rt[i] = (int*) malloc(NUM_THRDS * R.rows_ * sizeof(int));
+        tiled_host_rowGroupPtr_Rt[i] = new int[NUM_THRDS * R.rows_];
     }
 
     for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
