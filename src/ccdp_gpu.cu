@@ -76,25 +76,20 @@ inline cudaError_t checkCuda(cudaError_t result, int s) {
 }
 
 // Cyclic Coordinate Descent for Matrix Factorization
-void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
-        Options &param) {
+void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T,
+           Options& param) {
 
-    int k = param.k, maxiter = param.maxiter, inneriter = param.maxinneriter,
-            tileSize_H = param.tileSizeH, tileSize_W = param.tileSizeW;
-    DTYPE lambda = param.lambda, *d_R_val, *d_R_val_t, *d_gArrU, *d_hArrU,
-            *d_gArrV, *d_hArrV, *d_u, *d_v;
+    int k = param.k, maxiter = param.maxiter, inneriter = param.maxinneriter, tileSize_H = param.tileSizeH, tileSize_W = param.tileSizeW;
+    DTYPE lambda = param.lambda, * d_R_val, * d_R_val_t, * d_gArrU, * d_hArrU, * d_gArrV, * d_hArrV, * d_u, * d_v;
 //	DTYPE oldobj = 0;
-    int LB[NUM_THRDS], UB[NUM_THRDS], LB_Rt[NUM_THRDS], UB_Rt[NUM_THRDS],
-            *d_R_colPtr, *d_R_rowPtr, *d_row_lim_R, *d_row_lim_Rt, sum = 0,
-            *d_test_row, *d_test_col;
+    int LB[NUM_THRDS], UB[NUM_THRDS], LB_Rt[NUM_THRDS], UB_Rt[NUM_THRDS], * d_R_colPtr, * d_R_rowPtr, * d_row_lim_R, * d_row_lim_Rt, sum = 0, * d_test_row, * d_test_col;
 //	int i, j;
-    DTYPE *d_loss, *d_v_new, *d_Wt, *d_Ht, *d_W, *d_H,
-            *d_test_val, *d_pred_v, *d_rmse;
+    DTYPE* d_loss, * d_v_new, * d_Wt, * d_Ht, * d_W, * d_H, * d_test_val, * d_pred_v, * d_rmse;
 //	DTYPE reg = 0, loss, v, *d_fundec_col;
-    unsigned *d_R_rowIdx, *d_R_colIdx;
+    unsigned* d_R_rowIdx, * d_R_colIdx;
 
-    DTYPE *pred_v = (DTYPE*) malloc(T.nnz_ * sizeof(DTYPE));
-    DTYPE *rmse = (DTYPE*) malloc(T.nnz_ * sizeof(DTYPE));
+    DTYPE* pred_v = (DTYPE*) malloc(T.nnz_ * sizeof(DTYPE));
+    DTYPE* rmse = (DTYPE*) malloc(T.nnz_ * sizeof(DTYPE));
 
     //omp_set_num_threads(param.threads);
     // Create transpose view of R
@@ -102,9 +97,11 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
     Rt = R.get_shallow_transpose();
     // initial value of the regularization term
     // H is a zero matrix now.
-    for (int t = 0; t < k; ++t)
-        for (unsigned c = 0; c < R.cols_; ++c)
+    for (int t = 0; t < k; ++t) {
+        for (unsigned c = 0; c < R.cols_; ++c) {
             H[t][c] = 0;
+        }
+    }
 
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
@@ -143,35 +140,26 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
     checkCuda(cudaMalloc((void**) &d_loss, 1 * sizeof(DTYPE)), 11);
     checkCuda(cudaMalloc((void**) &d_test_row, (T.nnz_ + 1) * sizeof(int)), 7);
     checkCuda(cudaMalloc((void**) &d_test_col, (T.nnz_ + 1) * sizeof(int)), 7);
-    checkCuda(cudaMalloc((void**) &d_test_val, (T.nnz_ + 1) * sizeof(DTYPE)),
-            7);
+    checkCuda(cudaMalloc((void**) &d_test_val, (T.nnz_ + 1) * sizeof(DTYPE)), 7);
     checkCuda(cudaMalloc((void**) &d_pred_v, (T.nnz_ + 1) * sizeof(DTYPE)), 7);
     checkCuda(cudaMalloc((void**) &d_rmse, (T.nnz_ + 1) * sizeof(DTYPE)), 7);
 
     checkCuda(cudaEventRecord(start), __LINE__);
-    cudaMemcpy(d_R_colPtr, R.get_csc_col_ptr(), R_colPtr_memsize,
-            cudaMemcpyHostToDevice);
-    cudaMemcpy(d_R_rowPtr, R.get_csr_row_ptr(), R_rowPtr_memsize,
-            cudaMemcpyHostToDevice);
-    cudaMemcpy(d_R_rowIdx, R.get_csc_row_indx(), R_rowIdx_memsize,
-            cudaMemcpyHostToDevice);
-    cudaMemcpy(d_R_colIdx, R.get_csr_col_indx(), R_rowIdx_memsize,
-            cudaMemcpyHostToDevice);
+    cudaMemcpy(d_R_colPtr, R.get_csc_col_ptr(), R_colPtr_memsize, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_R_rowPtr, R.get_csr_row_ptr(), R_rowPtr_memsize, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_R_rowIdx, R.get_csc_row_indx(), R_rowIdx_memsize, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_R_colIdx, R.get_csr_col_indx(), R_rowIdx_memsize, cudaMemcpyHostToDevice);
     cudaMemcpy(d_R_val, R.get_csc_val(), R_val_memsize, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_R_val_t, R.get_csr_val(), R_val_memsize,
-            cudaMemcpyHostToDevice);
+    cudaMemcpy(d_R_val_t, R.get_csr_val(), R_val_memsize, cudaMemcpyHostToDevice);
 
-    for (int t = 0; t < k; ++t)
-        cudaMemcpy(d_W + t * R.rows_, &(W[t][0]), R.rows_ * sizeof(DTYPE),
-                cudaMemcpyHostToDevice);
+    for (int t = 0; t < k; ++t) {
+        cudaMemcpy(d_W + t * R.rows_, &(W[t][0]), R.rows_ * sizeof(DTYPE), cudaMemcpyHostToDevice);
+    }
     cudaMemset(d_H, 0, k * R.cols_ * sizeof(DTYPE));
     //cpoying test
-    cudaMemcpy(d_test_row, T.getTestRow(), (T.nnz_ + 1) * sizeof(int),
-            cudaMemcpyHostToDevice);
-    cudaMemcpy(d_test_col, T.getTestCol(), (T.nnz_ + 1) * sizeof(int),
-            cudaMemcpyHostToDevice);
-    cudaMemcpy(d_test_val, T.getTestVal(), (T.nnz_ + 1) * sizeof(DTYPE),
-            cudaMemcpyHostToDevice);
+    cudaMemcpy(d_test_row, T.getTestRow(), (T.nnz_ + 1) * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_test_col, T.getTestCol(), (T.nnz_ + 1) * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_test_val, T.getTestVal(), (T.nnz_ + 1) * sizeof(DTYPE), cudaMemcpyHostToDevice);
 
     checkCuda(cudaEventRecord(stop), __LINE__);
     checkCuda(cudaDeviceSynchronize(), __LINE__);
@@ -204,37 +192,23 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 
     checkCuda(cudaEventRecord(start), __LINE__);
 
-    checkCuda(
-            cudaMalloc((void**) &d_row_lim_R,
-                    (total_tileInRows + 1) * (R.cols_ + 1) * sizeof(int)), 0);
-    checkCuda(
-            cudaMalloc((void**) &d_row_lim_Rt,
-                    (total_tileInCols + 1) * (R.rows_ + 1) * sizeof(int)), 0);
+    checkCuda(cudaMalloc((void**) &d_row_lim_R, (total_tileInRows + 1) * (R.cols_ + 1) * sizeof(int)), 0);
+    checkCuda(cudaMalloc((void**) &d_row_lim_Rt, (total_tileInCols + 1) * (R.rows_ + 1) * sizeof(int)), 0);
 
-    checkCuda(
-            cudaMemcpy(d_row_lim_R, R.get_csc_col_ptr(),
-                    (R.cols_ + 1) * sizeof(int), cudaMemcpyHostToDevice),
-            __LINE__);
-    checkCuda(
-            cudaMemcpy(d_row_lim_Rt, R.get_csr_row_ptr(),
-                    (R.rows_ + 1) * sizeof(int), cudaMemcpyHostToDevice),
-            __LINE__);
+    checkCuda(cudaMemcpy(d_row_lim_R, R.get_csc_col_ptr(), (R.cols_ + 1) * sizeof(int), cudaMemcpyHostToDevice),
+              __LINE__);
+    checkCuda(cudaMemcpy(d_row_lim_Rt, R.get_csr_row_ptr(), (R.rows_ + 1) * sizeof(int), cudaMemcpyHostToDevice),
+              __LINE__);
 
-    for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile +=
-            tileSize_H) {
-        int tile_no = tile / tileSize_H;	// - 1;
-        checkCuda(
-                cudaMemcpy(d_row_lim_R + tile_no * (R.cols_ + 1),
-                        &(row_lim_R[tile_no][0]), (R.cols_ + 1) * sizeof(int),
-                        cudaMemcpyHostToDevice), __LINE__);
+    for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
+        int tile_no = tile / tileSize_H;    // - 1;
+        checkCuda(cudaMemcpy(d_row_lim_R + tile_no * (R.cols_ + 1), &(row_lim_R[tile_no][0]),
+                             (R.cols_ + 1) * sizeof(int), cudaMemcpyHostToDevice), __LINE__);
     }
-    for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile +=
-            tileSize_W) {
-        int tile_no = tile / tileSize_W;	// - 1;
-        checkCuda(
-                cudaMemcpy(d_row_lim_Rt + (tile_no * R.rows_) + tile_no,
-                        &(row_lim_Rt[tile_no][0]), (R.rows_ + 1) * sizeof(int),
-                        cudaMemcpyHostToDevice), __LINE__);
+    for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile += tileSize_W) {
+        int tile_no = tile / tileSize_W;    // - 1;
+        checkCuda(cudaMemcpy(d_row_lim_Rt + (tile_no * R.rows_) + tile_no, &(row_lim_Rt[tile_no][0]),
+                             (R.rows_ + 1) * sizeof(int), cudaMemcpyHostToDevice), __LINE__);
     }
 
     mili = cuda_timerEnd(start, stop, streamT);
@@ -242,75 +216,60 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 
     //******************PreProcess for TILED binning*******************************
     checkCuda(cudaEventRecord(start), __LINE__);
-    int *tiled_count[total_tileInRows], *tiled_count_Rt[total_tileInCols];
-    for (int i = 0; i < total_tileInRows; ++i)
+    int* tiled_count[total_tileInRows], * tiled_count_Rt[total_tileInCols];
+    for (int i = 0; i < total_tileInRows; ++i) {
         tiled_count[i] = (int*) malloc(NUM_THRDS * sizeof(int));
-    for (int i = 0; i < total_tileInCols; ++i)
+    }
+    for (int i = 0; i < total_tileInCols; ++i) {
         tiled_count_Rt[i] = (int*) malloc(NUM_THRDS * sizeof(int));
+    }
 
-    int *tiled_rowGroupPtr, *tiled_rowGroupPtr_Rt;
+    int* tiled_rowGroupPtr, * tiled_rowGroupPtr_Rt;
 
     // Extract CSR group info on CPU
-    int *tiled_host_rowGroupPtr[total_tileInRows],
-            *tiled_host_rowGroupPtr_Rt[total_tileInCols];
+    int* tiled_host_rowGroupPtr[total_tileInRows],
+            * tiled_host_rowGroupPtr_Rt[total_tileInCols];
 
-    for (int i = 0; i < total_tileInRows; ++i)
-        tiled_host_rowGroupPtr[i] = (int*) malloc(
-                NUM_THRDS * R.cols_ * sizeof(int));
+    for (int i = 0; i < total_tileInRows; ++i) {
+        tiled_host_rowGroupPtr[i] = (int*) malloc(NUM_THRDS * R.cols_ * sizeof(int));
+    }
 
-    for (int i = 0; i < total_tileInCols; ++i)
-        tiled_host_rowGroupPtr_Rt[i] = (int*) malloc(
-                NUM_THRDS * R.rows_ * sizeof(int));
+    for (int i = 0; i < total_tileInCols; ++i) {
+        tiled_host_rowGroupPtr_Rt[i] = (int*) malloc(NUM_THRDS * R.rows_ * sizeof(int));
+    }
 
-    for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile +=
-            tileSize_H) {
+    for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
         int tile_no = tile / tileSize_H - 1;
-        tiled_binning(R, (tiled_host_rowGroupPtr[tile_no]), LB, UB,
-                tiled_count[tile_no], row_lim_R, tile_no);
+        tiled_binning(R, (tiled_host_rowGroupPtr[tile_no]), LB, UB, tiled_count[tile_no], row_lim_R, tile_no);
     }
-    for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile +=
-            tileSize_W) {
+    for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile += tileSize_W) {
         int tile_no = tile / tileSize_W - 1;
-        tiled_binning(Rt, (tiled_host_rowGroupPtr_Rt[tile_no]), LB_Rt, UB_Rt,
-                tiled_count_Rt[tile_no], row_lim_Rt, tile_no);
+        tiled_binning(Rt, (tiled_host_rowGroupPtr_Rt[tile_no]), LB_Rt, UB_Rt, tiled_count_Rt[tile_no], row_lim_Rt,
+                      tile_no);
     }
-    checkCuda(
-            cudaMalloc((void **) &tiled_rowGroupPtr,
-                    total_tileInRows * R.cols_ * sizeof(int)), __LINE__);
-    checkCuda(
-            cudaMalloc((void **) &tiled_rowGroupPtr_Rt,
-                    total_tileInCols * R.rows_ * sizeof(int)), __LINE__);
-    int *test1 = (int*) malloc((R.cols_ + 1) * sizeof(int)); //del
-    for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile +=
-            tileSize_H) {
+    checkCuda(cudaMalloc((void**) &tiled_rowGroupPtr, total_tileInRows * R.cols_ * sizeof(int)), __LINE__);
+    checkCuda(cudaMalloc((void**) &tiled_rowGroupPtr_Rt, total_tileInCols * R.rows_ * sizeof(int)), __LINE__);
+    int* test1 = (int*) malloc((R.cols_ + 1) * sizeof(int)); //del
+
+    for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
         int tile_no = tile / tileSize_H - 1;
         sum = 0;
         for (int i = 0; i < NUM_THRDS; i++) {
             if (tiled_count[tile_no][i] > 0) {
-                checkCuda(
-                        cudaMemcpy(
-                                tiled_rowGroupPtr + (tile_no * R.cols_) + sum,
-                                &(tiled_host_rowGroupPtr[tile_no][i * R.cols_]),
-                                tiled_count[tile_no][i] * sizeof(int),
-                                cudaMemcpyHostToDevice), __LINE__);
+                checkCuda(cudaMemcpy(tiled_rowGroupPtr + (tile_no * R.cols_) + sum, &(tiled_host_rowGroupPtr[tile_no][i * R.cols_]),
+                                     tiled_count[tile_no][i] * sizeof(int), cudaMemcpyHostToDevice), __LINE__);
                 sum += tiled_count[tile_no][i];
             }
         }
     }
 
-    for (int tile = tileSize_W; tile < (Rt.rows_ + tileSize_W - 1); tile +=
-            tileSize_W) {
+    for (int tile = tileSize_W; tile < (Rt.rows_ + tileSize_W - 1); tile += tileSize_W) {
         int tile_no = tile / tileSize_W - 1;
         sum = 0;
         for (int i = 0; i < NUM_THRDS; i++) {
             if (tiled_count_Rt[tile_no][i] > 0) {
-                checkCuda(
-                        cudaMemcpy(
-                                tiled_rowGroupPtr_Rt + (tile_no * Rt.cols_)
-                                        + sum,
-                                &(tiled_host_rowGroupPtr_Rt[tile_no][i * R.rows_]),
-                                tiled_count_Rt[tile_no][i] * sizeof(int),
-                                cudaMemcpyHostToDevice), __LINE__);
+                checkCuda(cudaMemcpy(tiled_rowGroupPtr_Rt + (tile_no * Rt.cols_) + sum, &(tiled_host_rowGroupPtr_Rt[tile_no][i * R.rows_]),
+                                     tiled_count_Rt[tile_no][i] * sizeof(int), cudaMemcpyHostToDevice), __LINE__);
                 sum += tiled_count_Rt[tile_no][i];
             }
         }
@@ -319,8 +278,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 //	copyTime = mili;
 
     //********************STARTING CCD++ ALGORTIHM************************
-    printf("tileSize_H,W: %d, %d k: %d lambda:  %f\n", tileSize_H, tileSize_W,
-            k, lambda);
+    printf("tileSize_H,W: %d, %d k: %d lambda:  %f\n", tileSize_H, tileSize_W, k, lambda);
 
     float mergeR = 0, mergeRT = 0, updateR = 0, updateRT = 0;
     for (int oiter = 1; oiter <= maxiter; ++oiter) {
@@ -329,7 +287,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 
         for (int tt = 0; tt < k; ++tt) {
             int t = tt;
-            VecData &Wt = W[t], &Ht = H[t];
+            VecData& Wt = W[t], & Ht = H[t];
             cudaMemset(d_hArrU, 0, RRows_memsize);
             cudaMemset(d_gArrV, 0, RCols_memsize);
             cudaMemset(d_hArrV, 0, RCols_memsize);
@@ -339,14 +297,14 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
             {
                 //**************************Updating R with add true**********************************
                 mergeR = 0;
-                for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1);
-                        tile += tileSize_H) {
+                for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
                     int tile_no = tile / tileSize_H; //printf("*****tile no %d\n", tile_no );
                     cuda_timerStart(start, streamT);
-                    if (t == 0)
+                    if (t == 0) {
                         kk = t;
-                    else
+                    } else {
                         kk = t - 1;
+                    }
                     helper_UpdateR(
                             d_row_lim_R + ((tile_no - 1) * (R.cols_ + 1)),
                             d_row_lim_R + (tile_no * R.cols_) + tile_no,
@@ -363,25 +321,25 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
                 }
 
                 cuda_timerStart(start, streamT);
-                assignment<<<(R.cols_ + 1023) / 1024, 1024>>>(d_R_colPtr,
-                        d_v_new, d_gArrV, d_hArrV, lambda, R.cols_);
+                assignment <<<(R.cols_ + 1023) / 1024, 1024>>> (d_R_colPtr, d_v_new, d_gArrV, d_hArrV, lambda, R.cols_);
                 mili = cuda_timerEnd(start, stop, streamT);
                 ACSRTime += mili;
                 mergeR += mili;
-                if (oiter == 1 && (t == 1))
+                if (oiter == 1 && (t == 1)) {
                     printf("time to merge R %f\n", mergeR);
+                }
 
                 //**************************Updating RTranspose with add true**********************************
                 mergeRT = 0;
-                for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1);
-                        tile += tileSize_W) {
+                for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile += tileSize_W) {
                     int tile_no = tile / tileSize_W; //printf("tile_no from RT %d\n", tile_no);
 
                     cuda_timerStart(start, streamT);
-                    if (t == 0)
+                    if (t == 0) {
                         kk = t;
-                    else
+                    } else {
                         kk = t - 1;
+                    }
                     helper_UpdateR(
                             d_row_lim_Rt + ((tile_no - 1) * (R.rows_ + 1)),
                             d_row_lim_Rt + (tile_no * R.rows_) + (tile_no),
@@ -397,15 +355,14 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
                     //printf("update R in GPU takes %f \n", mili );
                 }
                 cuda_timerStart(start, streamT);
-                assignment<<<(R.cols_ + 1023) / 1024, 1024>>>(d_R_colPtr,
-                        d_H + t * R.cols_, d_gArrV, d_hArrV, lambda, R.cols_);
-                assignment<<<(R.rows_ + 1023) / 1024, 1024>>>(d_R_rowPtr,
-                        d_W + t * R.rows_, d_gArrU, d_hArrU, lambda, R.rows_);
+                assignment <<<(R.cols_ + 1023) / 1024, 1024>>>(d_R_colPtr, d_H + t * R.cols_, d_gArrV, d_hArrV, lambda, R.cols_);
+                assignment <<<(R.rows_ + 1023) / 1024, 1024>>>(d_R_rowPtr, d_W + t * R.rows_, d_gArrU, d_hArrU, lambda, R.rows_);
                 mili = cuda_timerEnd(start, stop, streamT);
                 ACSRTime += mili;
                 mergeRT += mili;
-                if (oiter == 1 && t == 1)
+                if (oiter == 1 && t == 1) {
                     printf("time to merge Rt %f\n", mergeRT);
+                }
 
             }
             int maxit = inneriter;
@@ -420,13 +377,11 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
             for (; iter < maxit; ++iter) {
                 //*************************Update Ht***************
                 float updateR = 0;
-                for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1);
-                        tile += tileSize_H) {
+                for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
                     int tile_no = tile / tileSize_H; //printf("*****tile no %d\n", tile_no );
                     cuda_timerStart(start, streamT);
                     helper_rankOneUpdate_v(
-                            d_row_lim_R + ((tile_no - 1) * R.cols_)
-                                    + (tile_no - 1),
+                            d_row_lim_R + ((tile_no - 1) * R.cols_) + (tile_no - 1),
                             d_row_lim_R + (tile_no * R.cols_) + tile_no,
                             d_R_rowIdx, d_R_val, d_W + t * R.rows_,
                             d_H + t * R.cols_, R.rows_, R.cols_, true,
@@ -439,8 +394,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 
                 }
                 cuda_timerStart(start, streamT);
-                assignment<<<(R.cols_ + 1023) / 1024, 1024>>>(d_R_colPtr,
-                        d_H + t * R.cols_, d_gArrV, d_hArrV, lambda, R.cols_);
+                assignment <<<(R.cols_ + 1023) / 1024, 1024>>>(d_R_colPtr, d_H + t * R.cols_, d_gArrV, d_hArrV, lambda, R.cols_);
                 mili = cuda_timerEnd(start, stop, streamT);
                 ACSRTime += mili;
                 updateR += mili;
@@ -448,14 +402,12 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
                 //*************************Update Wt***************
 
                 float updateRT = 0;
-                for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1);
-                        tile += tileSize_W) {
+                for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile += tileSize_W) {
                     int tile_no = tile / tileSize_W;//printf("tile_no from RT %d\n", tile_no);
 
                     cuda_timerStart(start, streamT);
                     helper_rankOneUpdate_v(
-                            d_row_lim_Rt + ((tile_no - 1) * R.rows_)
-                                    + (tile_no - 1),
+                            d_row_lim_Rt + ((tile_no - 1) * R.rows_) + (tile_no - 1),
                             d_row_lim_Rt + (tile_no * R.rows_) + (tile_no),
                             d_R_colIdx, d_R_val_t, d_H + t * R.cols_,
                             d_W + t * R.rows_, R.cols_, R.rows_, true,
@@ -467,8 +419,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
                     updateRT += mili;
                 }
                 cuda_timerStart(start, streamT);
-                assignment<<<(R.rows_ + 1023) / 1024, 1024>>>(d_R_rowPtr,
-                        d_W + t * R.rows_, d_gArrU, d_hArrU, lambda, R.rows_);
+                assignment <<<(R.rows_ + 1023) / 1024, 1024>>>(d_R_rowPtr, d_W + t * R.rows_, d_gArrU, d_hArrU, lambda, R.rows_);
                 mili = cuda_timerEnd(start, stop, streamT);
                 ACSRTime += mili;
                 updateRT += mili;
@@ -480,8 +431,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 
             updateR = 0;
             if (t == k - 1) {
-                for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1);
-                        tile += tileSize_H) {
+                for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
                     int tile_no = tile / tileSize_H; //printf("tile no %d\n", tile_no );
 
                     cuda_timerStart(start, streamT);
@@ -504,8 +454,7 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
 
             updateRT = 0;
             if (t == k - 1) {
-                for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1);
-                        tile += tileSize_W) {
+                for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile += tileSize_W) {
                     int tile_no = tile / tileSize_W;
                     cuda_timerStart(start, streamT);
                     helper_UpdateR(
@@ -524,8 +473,9 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
             }
             // if(oiter ==1 && t == k-1)
             // 	printf("time to update Rt %f\n", updateRT);
-            if (oiter == 1 && t == 2)
+            if (oiter == 1 && t == 2) {
                 printf("iter %d time for 1 feature: %f ms\n", oiter, ACSRTime);
+            }
 
         }
 
@@ -533,23 +483,23 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
         cudaMemset(d_rmse, 0, (T.nnz_ + 1) * sizeof(DTYPE));
         cudaMemset(d_pred_v, 0, (T.nnz_ + 1) * sizeof(DTYPE));
 
-        GPU_rmse<<<(T.nnz_ + 1023) / 1024, 1024>>>(d_test_row, d_test_col,
-                d_test_val, d_pred_v, d_rmse, d_W, d_H, T.nnz_, k, R.rows_,
-                R.cols_);
+        GPU_rmse <<<(T.nnz_ + 1023) / 1024, 1024>>>(d_test_row, d_test_col,
+                d_test_val, d_pred_v, d_rmse, d_W, d_H, T.nnz_, k, R.rows_, R.cols_);
         DTYPE tot_rmse = 0, f_rmse = 0;
-        cudaMemcpy(&(rmse[0]), d_rmse, (T.nnz_ + 1) * sizeof(DTYPE),
-                cudaMemcpyDeviceToHost);
+        cudaMemcpy(&(rmse[0]), d_rmse, (T.nnz_ + 1) * sizeof(DTYPE), cudaMemcpyDeviceToHost);
 
 #pragma omp parallel for reduction(+:tot_rmse)
-        for (int i = 0; i < T.nnz_; ++i)
+        for (int i = 0; i < T.nnz_; ++i) {
             tot_rmse += rmse[i];
+        }
         f_rmse = sqrt(tot_rmse / T.nnz_);
         printf("iter %d time %f RMSE %f\n", oiter, (ACSRTime / 1000), f_rmse);
 
     }
 
-    for (int i = 0; i <= NUM_THRDS; i++)
+    for (int i = 0; i <= NUM_THRDS; i++) {
         checkCuda(cudaStreamDestroy(stream[i]), __LINE__);
+    }
     checkCuda(cudaStreamDestroy(streamT), __LINE__);
 
     cudaFree(d_u);
@@ -568,4 +518,3 @@ void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
     cudaFree(d_hArrV);
 
 }
-

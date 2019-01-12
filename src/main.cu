@@ -76,54 +76,50 @@ void print_help_and_exit() {
     exit(1);
 }
 
-Options parse_cmd_options(int argc, char **argv, char *train_file_directory) {
+Options parse_cmd_options(int argc, char** argv, char* train_file_directory) {
     Options param;
     int i;
     //handle options
     for (i = 1; i < argc; i++) {
-        if (argv[i][0] != '-')
+        if (argv[i][0] != '-') {
             break;
-        if (++i >= argc)
+        }
+        if (++i >= argc) {
             print_help_and_exit();
+        }
         switch (argv[i - 1][1]) {
-        case 'k':
-            param.k = atoi(argv[i]);
-            break;
-        case 'l':
-            param.lambda = atof(argv[i]);
-            break;
-
-        case 't':
-            param.maxiter = atoi(argv[i]);
-            break;
-
-        case 'T':
-            param.maxinneriter = atoi(argv[i]);
-            break;
-
-        case 'a':
-            param.tileSizeH = atoi(argv[i]);
-            break;
-
-        case 'b':
-            param.tileSizeW = atoi(argv[i]);
-            break;
-
-        default:
-            fprintf(stderr, "unknown option: -%c\n", argv[i - 1][1]);
-            print_help_and_exit();
-            break;
+            case 'k':
+                param.k = atoi(argv[i]);
+                break;
+            case 'l':
+                param.lambda = atof(argv[i]);
+                break;
+            case 't':
+                param.maxiter = atoi(argv[i]);
+                break;
+            case 'T':
+                param.maxinneriter = atoi(argv[i]);
+                break;
+            case 'a':
+                param.tileSizeH = atoi(argv[i]);
+                break;
+            case 'b':
+                param.tileSizeW = atoi(argv[i]);
+                break;
+            default:
+                fprintf(stderr, "unknown option: -%c\n", argv[i - 1][1]);
+                print_help_and_exit();
+                break;
         }
     }
 
-    if (i >= argc)
-        print_help_and_exit();
+    if (i >= argc) { print_help_and_exit(); }
 
     strcpy(train_file_directory, argv[i]);
     return param;
 }
 
-void run_ccdr1(Options &param, const char* train_file_directory) {
+void run_ccdr1(Options& param, const char* train_file_directory) {
 
 //	cudaEvent_t start, stop;
 //	float elapsedTime;

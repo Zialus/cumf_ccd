@@ -65,19 +65,16 @@
 #define MALLOC(type, size) (type*)malloc(sizeof(type)*(size))
 
 // load utility
-void load_from_binary(const char* srcdir, SparseMatrix &R, TestData &data) {
+void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     printf("Loading from binary file...\n");
 
     double t0 = seconds();
 
-    char filename[1024], buf[1024], binary_filename_val[1024],
-            binary_filename_row[1024], binary_filename_col[1024];
-    char binary_filename_rowptr[1024], binary_filename_colidx[1024],
-            binary_filename_csrval[1024];
-    char binary_filename_colptr[1024], binary_filename_rowidx[1024],
-            binary_filename_cscval[1024];
+    char filename[1024], buf[1024], binary_filename_val[1024], binary_filename_row[1024], binary_filename_col[1024];
+    char binary_filename_rowptr[1024], binary_filename_colidx[1024], binary_filename_csrval[1024];
+    char binary_filename_colptr[1024], binary_filename_rowidx[1024], binary_filename_cscval[1024];
     sprintf(filename, "%s/meta_modified_all", srcdir);
-    FILE *fp = fopen(filename, "r");
+    FILE* fp = fopen(filename, "r");
     long m, n, nnz;
     fscanf(fp, "%ld %ld", &m, &n);
 
@@ -102,9 +99,9 @@ void load_from_binary(const char* srcdir, SparseMatrix &R, TestData &data) {
     sprintf(binary_filename_cscval, "%s/%s", srcdir, buf);
 
     R.read_binary_file(m, n, nnz, binary_filename_val, binary_filename_row,
-            binary_filename_col, binary_filename_rowptr, binary_filename_colidx,
-            binary_filename_csrval, binary_filename_colptr,
-            binary_filename_rowidx, binary_filename_cscval);
+                       binary_filename_col, binary_filename_rowptr, binary_filename_colidx,
+                       binary_filename_csrval, binary_filename_colptr,
+                       binary_filename_rowidx, binary_filename_cscval);
 
     if (fscanf(fp, "%ld %s", &nnz, buf) != EOF) {
         sprintf(filename, "%s/%s", srcdir, buf);
@@ -117,55 +114,54 @@ void load_from_binary(const char* srcdir, SparseMatrix &R, TestData &data) {
 
 }
 
-void init_random(MatData &X, long k, long n) {
+void init_random(MatData& X, long k, long n) {
     X = MatData(k, VecData(n));
     srand48(0L);
-    for (long i = 0; i < n; ++i)
-        for (long j = 0; j < k; ++j)
+    for (long i = 0; i < n; ++i) {
+        for (long j = 0; j < k; ++j) {
             X[j][i] = 0.1 * drand48();
+        }
+    }
 }
 
 
 void SparseMatrix::read_binary_file(long rows, long cols, long nnz,
-        std::string fname_data, std::string fname_row, std::string fname_col,
-        std::string fname_csr_row_ptr, std::string fname_csr_col_indx,
-        std::string fname_csr_val, std::string fname_csc_col_ptr,
-        std::string fname_csc_row_indx, std::string fname_csc_val) {
+                                    std::string fname_data, std::string fname_row, std::string fname_col,
+                                    std::string fname_csr_row_ptr, std::string fname_csr_col_indx,
+                                    std::string fname_csr_val, std::string fname_csc_col_ptr,
+                                    std::string fname_csc_row_indx, std::string fname_csc_val) {
     this->rows_ = rows;
     this->cols_ = cols;
     this->nnz_ = nnz;
 
     /// read csr
     this->read_compressed(fname_csr_row_ptr, fname_csr_col_indx, fname_csr_val,
-            this->csr_row_ptr_, this->csr_col_indx_, this->csr_val_, rows + 1,
-            this->max_row_nnz_);
+                          this->csr_row_ptr_, this->csr_col_indx_, this->csr_val_, rows + 1,
+                          this->max_row_nnz_);
 
     /// read csc
     this->read_compressed(fname_csc_col_ptr, fname_csc_row_indx, fname_csc_val,
-            this->csc_col_ptr_, this->csc_row_indx_, this->csc_val_, cols + 1,
-            this->max_col_nnz_);
+                          this->csc_col_ptr_, this->csc_row_indx_, this->csc_val_, cols + 1,
+                          this->max_col_nnz_);
 
 }
 
 void SparseMatrix::read_compressed(std::string fname_cs_ptr,
-        std::string fname_cs_indx, std::string fname_cs_val,
-        std::shared_ptr<int>&cs_ptr, std::shared_ptr<unsigned int> &cs_indx,
-        std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr,
-        long &max_nnz_in_one_dim) {
+                                   std::string fname_cs_indx, std::string fname_cs_val,
+                                   std::shared_ptr<int>& cs_ptr, std::shared_ptr<unsigned int>& cs_indx,
+                                   std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr,
+                                   long& max_nnz_in_one_dim) {
 
-    cs_ptr = std::shared_ptr<int>(new int[num_elems_in_cs_ptr],
-            std::default_delete<int[]>());
-    cs_indx = std::shared_ptr<unsigned int>(new unsigned int[this->nnz_],
-            std::default_delete<unsigned int[]>());
-    cs_val = std::shared_ptr<DTYPE>(new DTYPE[this->nnz_],
-            std::default_delete<DTYPE[]>());
+    cs_ptr = std::shared_ptr<int>(new int[num_elems_in_cs_ptr], std::default_delete<int[]>());
+    cs_indx = std::shared_ptr<unsigned int>(new unsigned int[this->nnz_], std::default_delete<unsigned int[]>());
+    cs_val = std::shared_ptr<DTYPE>(new DTYPE[this->nnz_], std::default_delete<DTYPE[]>());
 
     std::ifstream f_indx(fname_cs_indx, std::ios::binary);
     std::ifstream f_val(fname_cs_val, std::ios::binary);
 
     for (long i = 0; i < this->nnz_; i++) {
         f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned int));
-        f_val.read((char *) &cs_val.get()[i], sizeof(float));
+        f_val.read((char*) &cs_val.get()[i], sizeof(float));
     }
 
     std::ifstream f_ptr(fname_cs_ptr, std::ios::binary);
@@ -178,8 +174,7 @@ void SparseMatrix::read_compressed(std::string fname_cs_ptr,
         f_ptr.read((char*) &cur, sizeof(int));
         cs_ptr.get()[i] = cur;
 
-        if (i > 0)
-            max_nnz_in_one_dim = std::max<long>(max_nnz_in_one_dim, cur - prev);
+        if (i > 0) { max_nnz_in_one_dim = std::max<long>(max_nnz_in_one_dim, cur - prev); }
     }
 }
 

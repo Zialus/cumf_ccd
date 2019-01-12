@@ -69,12 +69,12 @@
 
 template<bool UseCache, unsigned POWER, unsigned Nth_POWER>
 __global__ void CudaRankOneUpdate_gen(int const* __restrict__ R_colPtr,
-        int const* __restrict__ R_rowLim,
-        const unsigned * __restrict__ R_rowIdx, DTYPE *R_val,
-        const DTYPE * __restrict__ u, const DTYPE * __restrict__ v, int m,
-        int n, bool add, int * __restrict__ rowGroupPtr, int numRowsPerGroup,
-        DTYPE lambda, DTYPE * __restrict__ g_arr, DTYPE * __restrict__ h_arr,
-        const DTYPE * __restrict__ u_new) {
+                                      int const* __restrict__ R_rowLim,
+                                      const unsigned* __restrict__ R_rowIdx, DTYPE* R_val,
+                                      const DTYPE* __restrict__ u, const DTYPE* __restrict__ v, int m,
+                                      int n, bool add, int* __restrict__ rowGroupPtr, int numRowsPerGroup,
+                                      DTYPE lambda, DTYPE* __restrict__ g_arr, DTYPE* __restrict__ h_arr,
+                                      const DTYPE* __restrict__ u_new) {
     unsigned int tId = threadIdx.x;
     unsigned int laneId = tId & (POWER - 1);
     unsigned int c = (blockIdx.x * blockDim.x + tId) >> (Nth_POWER);
@@ -107,11 +107,11 @@ __global__ void CudaRankOneUpdate_gen(int const* __restrict__ R_colPtr,
 
 template<bool UseCache>
 __global__ void CudaRankOneUpdate_7(int const* __restrict__ R_colPtr,
-        int const* __restrict__ R_rowLim, unsigned * R_rowIdx, DTYPE *R_val,
-        DTYPE * u, const DTYPE * __restrict__ v, int m, int n, bool add,
-        int * __restrict__ rowGroupPtr, int numRowsPerGroup, DTYPE lambda,
-        DTYPE * __restrict__ g_arr, DTYPE * __restrict__ h_arr,
-        const DTYPE * __restrict__ u_new) {
+                                    int const* __restrict__ R_rowLim, unsigned* R_rowIdx, DTYPE* R_val,
+                                    DTYPE* u, const DTYPE* __restrict__ v, int m, int n, bool add,
+                                    int* __restrict__ rowGroupPtr, int numRowsPerGroup, DTYPE lambda,
+                                    DTYPE* __restrict__ g_arr, DTYPE* __restrict__ h_arr,
+                                    const DTYPE* __restrict__ u_new) {
     unsigned int tId = threadIdx.x;
     unsigned int laneId = tId & 63;
     unsigned int c = (blockIdx.x * blockDim.x + tId) >> 6;

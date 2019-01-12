@@ -79,82 +79,76 @@ void create_stream() {
 template<unsigned LB, unsigned UB>
 struct RANK_LOOP {
     RANK_LOOP() = delete;
-    RANK_LOOP(int& sum, const int * __restrict__ d_R_colPtr, int *d_row_lim,
-            unsigned *d_R_rowIdx, DTYPE *d_R_val, const DTYPE *d_Wt,
-            const DTYPE *d_Ht, int m, int n, bool add, int *rowGroupPtr,
-            int *count, DTYPE lambda, DTYPE *d_gArrV, DTYPE *d_hArrV,
-            DTYPE *v_new, DTYPE *Wt_p, DTYPE *Ht_p, int t) {
-        static_assert(LB<UB,"Lower Bound should be less than Upper bound");
+
+    RANK_LOOP(int& sum, const int* __restrict__ d_R_colPtr, int* d_row_lim,
+              unsigned* d_R_rowIdx, DTYPE* d_R_val, const DTYPE* d_Wt,
+              const DTYPE* d_Ht, int m, int n, bool add, int* rowGroupPtr,
+              int* count, DTYPE lambda, DTYPE* d_gArrV, DTYPE* d_hArrV,
+              DTYPE* v_new, DTYPE* Wt_p, DTYPE* Ht_p, int t) {
+
+        static_assert(LB < UB, "Lower Bound should be less than Upper bound");
+
         if (count[LB] > 0) {
             constexpr unsigned BLOCKSIZE_V2 = 128;
             constexpr unsigned POWER = TMP_power<2, LB>::value;
             grid.x = (POWER * count[LB] + BLOCKSIZE_V2 - 1) / BLOCKSIZE_V2;
-            updateR_gen<false, POWER, LB> <<<grid, BLOCKSIZE_V2, 0, stream[LB]>>>(
-                    d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m,
-                    n, add, rowGroupPtr + sum, count[LB], lambda, d_gArrV,
-                    d_hArrV, v_new, Wt_p, Ht_p, t);
+            updateR_gen<false, POWER, LB> <<<grid, BLOCKSIZE_V2, 0, stream[LB]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m,
+                            n, add, rowGroupPtr + sum, count[LB], lambda, d_gArrV, d_hArrV, v_new, Wt_p, Ht_p, t);
         }
+
         sum += count[LB];
-        RANK_LOOP<LB + 1, UB>(sum, d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val,
-                d_Wt, d_Ht, m, n, add, rowGroupPtr, count, lambda, d_gArrV,
-                d_hArrV, v_new, Wt_p, Ht_p, t);
+        RANK_LOOP<LB + 1, UB>(sum, d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m, n, add, rowGroupPtr,
+                              count, lambda, d_gArrV, d_hArrV, v_new, Wt_p, Ht_p, t);
     }
 };
 
 template<unsigned LB>
 struct RANK_LOOP<LB, LB> {
     RANK_LOOP() = delete;
-    RANK_LOOP(int& sum, const int * __restrict__ d_R_colPtr, int *d_row_lim,
-            unsigned *d_R_rowIdx, DTYPE *d_R_val, const DTYPE *d_Wt,
-            const DTYPE *d_Ht, int m, int n, bool add, int *rowGroupPtr,
-            int *count, DTYPE lambda, DTYPE *d_gArrV, DTYPE *d_hArrV,
-            DTYPE *v_new, DTYPE *Wt_p, DTYPE *Ht_p, int t) {
+
+    RANK_LOOP(int& sum, const int* __restrict__ d_R_colPtr, int* d_row_lim,
+              unsigned* d_R_rowIdx, DTYPE* d_R_val, const DTYPE* d_Wt,
+              const DTYPE* d_Ht, int m, int n, bool add, int* rowGroupPtr,
+              int* count, DTYPE lambda, DTYPE* d_gArrV, DTYPE* d_hArrV,
+              DTYPE* v_new, DTYPE* Wt_p, DTYPE* Ht_p, int t) {
         //do nothing
     }
 };
 
-void helper_UpdateR(int *d_R_colPtr, int *d_row_lim, unsigned *d_R_rowIdx,
-        DTYPE *d_R_val, DTYPE *d_Wt, DTYPE *d_Ht, int m, int n, bool add,
-        int *rowGroupPtr, int *count, DTYPE lambda, DTYPE *d_gArrV,
-        DTYPE *d_hArrV, DTYPE *v_new, DTYPE *Wt_p, DTYPE *Ht_p, int t) {
+void helper_UpdateR(int* d_R_colPtr, int* d_row_lim, unsigned* d_R_rowIdx,
+                    DTYPE* d_R_val, DTYPE* d_Wt, DTYPE* d_Ht, int m, int n, bool add,
+                    int* rowGroupPtr, int* count, DTYPE lambda, DTYPE* d_gArrV,
+                    DTYPE* d_hArrV, DTYPE* v_new, DTYPE* Wt_p, DTYPE* Ht_p, int t) {
     int sum = 0;
     //loop from 0 to 5
-    RANK_LOOP<0, 6>(sum, d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht,
-            m, n, add, rowGroupPtr, count, lambda, d_gArrV, d_hArrV, v_new,
-            Wt_p, Ht_p, t);
+    RANK_LOOP<0, 6>(sum, d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m, n, add, rowGroupPtr, count, lambda,
+                    d_gArrV, d_hArrV, v_new, Wt_p, Ht_p, t);
 
     if (count[6] > 0) {
         grid.x = (64 * count[6] + BLOCKSIZE - 1) / BLOCKSIZE;
-        updateR_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE),
-                stream[6]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt,
-                d_Ht, m, n, add, rowGroupPtr + sum, count[6], lambda, d_gArrV,
-                d_hArrV, v_new, Wt_p, Ht_p, t);
+        updateR_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE), stream[6]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt,
+                        d_Ht, m, n, add, rowGroupPtr + sum, count[6], lambda, d_gArrV, d_hArrV, v_new, Wt_p, Ht_p, t);
     }
     sum += count[6];
 
     if (count[7] > 0) {
         grid.x = (64 * count[7] + BLOCKSIZE - 1) / BLOCKSIZE;
-        updateR_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE),
-                stream[7]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt,
-                d_Ht, m, n, add, rowGroupPtr + sum, count[7], lambda, d_gArrV,
-                d_hArrV, v_new, Wt_p, Ht_p, t);
+        updateR_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE), stream[7]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt,
+                        d_Ht, m, n, add, rowGroupPtr + sum, count[7], lambda, d_gArrV, d_hArrV, v_new, Wt_p, Ht_p, t);
     }
     sum += count[7];
 
     if (count[8] > 0) {
         grid.x = (64 * count[8] + BLOCKSIZE - 1) / BLOCKSIZE;
-        updateR_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE),
-                stream[8]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt,
-                d_Ht, m, n, add, rowGroupPtr + sum, count[8], lambda, d_gArrV,
-                d_hArrV, v_new, Wt_p, Ht_p, t);
+        updateR_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE), stream[8]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt,
+                        d_Ht, m, n, add, rowGroupPtr + sum, count[8], lambda, d_gArrV, d_hArrV, v_new, Wt_p, Ht_p, t);
     }
     sum += count[8];
+
     if (count[9] > 0) {
         grid.x = (64 * count[9] + BLOCKSIZE - 1) / BLOCKSIZE;
-        updateR_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE),
-                stream[9]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt,
-                d_Ht, m, n, add, rowGroupPtr + sum, count[9], lambda, d_gArrV,
-                d_hArrV, v_new, Wt_p, Ht_p, t);
+        updateR_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE), stream[9]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt,
+                        d_Ht, m, n, add, rowGroupPtr + sum, count[9], lambda, d_gArrV, d_hArrV, v_new, Wt_p, Ht_p, t);
     }
 }
 

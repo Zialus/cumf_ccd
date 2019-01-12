@@ -72,82 +72,76 @@
 template<unsigned LB, unsigned UB>
 struct RANK_LOOP_R {
     RANK_LOOP_R() = delete;
-    RANK_LOOP_R(int& sum, const int * __restrict__ d_R_colPtr, int *d_row_lim,
-            const unsigned *d_R_rowIdx, DTYPE *d_R_val, const DTYPE *d_Wt,
-            const DTYPE *d_Ht, int m, int n, bool add, int *rowGroupPtr,
-            int *count, DTYPE lambda, DTYPE *d_gArrV, DTYPE *d_hArrV,
-            DTYPE *v_new) {
-        static_assert(LB<UB,"Lower Bound should be less than Upper bound");
+
+    RANK_LOOP_R(int& sum, const int* __restrict__ d_R_colPtr, int* d_row_lim,
+                const unsigned* d_R_rowIdx, DTYPE* d_R_val, const DTYPE* d_Wt,
+                const DTYPE* d_Ht, int m, int n, bool add, int* rowGroupPtr,
+                int* count, DTYPE lambda, DTYPE* d_gArrV, DTYPE* d_hArrV,
+                DTYPE* v_new) {
+
+        static_assert(LB < UB, "Lower Bound should be less than Upper bound");
+
         if (count[LB] > 0) {
             constexpr unsigned BLOCKSIZE_V2 = 128;
             constexpr unsigned POWER = TMP_power<2, LB>::value;
             grid.x = (POWER * count[LB] + BLOCKSIZE_V2 - 1) / BLOCKSIZE_V2;
-            CudaRankOneUpdate_gen<false, POWER, LB> <<<grid, BLOCKSIZE_V2, 0,
-                    stream[LB]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val,
-                    d_Wt, d_Ht, m, n, add, rowGroupPtr + sum, count[LB], lambda,
-                    d_gArrV, d_hArrV, v_new);
+            CudaRankOneUpdate_gen<false, POWER, LB> <<<grid, BLOCKSIZE_V2, 0, stream[LB]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val,
+                    d_Wt, d_Ht, m, n, add, rowGroupPtr + sum, count[LB], lambda, d_gArrV, d_hArrV, v_new);
         }
+
         sum += count[LB];
-        RANK_LOOP_R<LB + 1, UB>(sum, d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val,
-                d_Wt, d_Ht, m, n, add, rowGroupPtr, count, lambda, d_gArrV,
-                d_hArrV, v_new);
+        RANK_LOOP_R<LB + 1, UB>(sum, d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m, n, add, rowGroupPtr,
+                                count, lambda, d_gArrV, d_hArrV, v_new);
     }
 };
 
 template<unsigned LB>
 struct RANK_LOOP_R<LB, LB> {
     RANK_LOOP_R() = delete;
-    RANK_LOOP_R(int& sum, const int * __restrict__ d_R_colPtr, int *d_row_lim,
-            const unsigned *d_R_rowIdx, DTYPE *d_R_val, const DTYPE *d_Wt,
-            const DTYPE *d_Ht, int m, int n, bool add, int *rowGroupPtr,
-            int *count, DTYPE lambda, DTYPE *d_gArrV, DTYPE *d_hArrV,
-            DTYPE *v_new) {
+
+    RANK_LOOP_R(int& sum, const int* __restrict__ d_R_colPtr, int* d_row_lim,
+                const unsigned* d_R_rowIdx, DTYPE* d_R_val, const DTYPE* d_Wt,
+                const DTYPE* d_Ht, int m, int n, bool add, int* rowGroupPtr,
+                int* count, DTYPE lambda, DTYPE* d_gArrV, DTYPE* d_hArrV,
+                DTYPE* v_new) {
         //do nothing
     }
 };
 
-void helper_rankOneUpdate_v(int *d_R_colPtr, int *d_row_lim,
-        unsigned *d_R_rowIdx, DTYPE *d_R_val, DTYPE *d_Wt, const DTYPE *d_Ht,
-        int m, int n, bool add, int *rowGroupPtr, int *count, DTYPE lambda,
-        DTYPE *d_gArrV, DTYPE *d_hArrV, DTYPE *v_new) {
+void helper_rankOneUpdate_v(int* d_R_colPtr, int* d_row_lim,
+                            unsigned* d_R_rowIdx, DTYPE* d_R_val, DTYPE* d_Wt, const DTYPE* d_Ht,
+                            int m, int n, bool add, int* rowGroupPtr, int* count, DTYPE lambda,
+                            DTYPE* d_gArrV, DTYPE* d_hArrV, DTYPE* v_new) {
     int sum = 0;
     //loop from 0 to 5
-    RANK_LOOP_R<0, 6>(sum, d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt,
-            d_Ht, m, n, add, rowGroupPtr, count, lambda, d_gArrV, d_hArrV,
-            v_new);
+    RANK_LOOP_R<0, 6>(sum, d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m, n, add, rowGroupPtr, count,
+                      lambda, d_gArrV, d_hArrV, v_new);
 
     if (count[6] > 0) {
         grid.x = (64 * count[6] + BLOCKSIZE - 1) / BLOCKSIZE;
-        CudaRankOneUpdate_7<false> <<<grid, block,
-                2 * block.x / 32 * sizeof(DTYPE), stream[6]>>>(d_R_colPtr,
-                d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m, n, add,
-                rowGroupPtr + sum, count[6], lambda, d_gArrV, d_hArrV, v_new);
+        CudaRankOneUpdate_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE), stream[6]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val,
+                d_Wt, d_Ht, m, n, add, rowGroupPtr + sum, count[6], lambda, d_gArrV, d_hArrV, v_new);
     }
     sum += count[6];
 
     if (count[7] > 0) {
         grid.x = (64 * count[7] + BLOCKSIZE - 1) / BLOCKSIZE;
-        CudaRankOneUpdate_7<false> <<<grid, block,
-                2 * block.x / 32 * sizeof(DTYPE), stream[7]>>>(d_R_colPtr,
-                d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m, n, add,
-                rowGroupPtr + sum, count[7], lambda, d_gArrV, d_hArrV, v_new);
+        CudaRankOneUpdate_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE), stream[7]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val,
+                d_Wt, d_Ht, m, n, add, rowGroupPtr + sum, count[7], lambda, d_gArrV, d_hArrV, v_new);
     }
     sum += count[7];
 
     if (count[8] > 0) {
         grid.x = (64 * count[8] + BLOCKSIZE - 1) / BLOCKSIZE;
-        CudaRankOneUpdate_7<false> <<<grid, block,
-                2 * block.x / 32 * sizeof(DTYPE), stream[8]>>>(d_R_colPtr,
-                d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m, n, add,
-                rowGroupPtr + sum, count[8], lambda, d_gArrV, d_hArrV, v_new);
+        CudaRankOneUpdate_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE), stream[8]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val,
+                d_Wt, d_Ht, m, n, add, rowGroupPtr + sum, count[8], lambda, d_gArrV, d_hArrV, v_new);
     }
     sum += count[8];
+
     if (count[9] > 0) {
         grid.x = (64 * count[9] + BLOCKSIZE - 1) / BLOCKSIZE;
-        CudaRankOneUpdate_7<false> <<<grid, block,
-                2 * block.x / 32 * sizeof(DTYPE), stream[9]>>>(d_R_colPtr,
-                d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m, n, add,
-                rowGroupPtr + sum, count[9], lambda, d_gArrV, d_hArrV, v_new);
+        CudaRankOneUpdate_7<false> <<<grid, block, 2 * block.x / 32 * sizeof(DTYPE), stream[9]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val,
+                d_Wt, d_Ht, m, n, add, rowGroupPtr + sum, count[9], lambda, d_gArrV, d_hArrV, v_new);
     }
 }
 

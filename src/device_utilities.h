@@ -71,6 +71,7 @@
 void cuda_timerStart(cudaEvent_t start, cudaStream_t streamT) {
     cudaEventRecord(start, streamT);
 }
+
 float cuda_timerEnd(cudaEvent_t start, cudaEvent_t stop, cudaStream_t streamT) {
     float mili = 0;
     cudaDeviceSynchronize();
@@ -80,36 +81,36 @@ float cuda_timerEnd(cudaEvent_t start, cudaEvent_t stop, cudaStream_t streamT) {
     return mili;
 
 }
-void copy_R(SparseMatrix &R, DTYPE *copy_R) //R to R copy
-        {
+
+//R to R copy
+void copy_R(SparseMatrix& R, DTYPE* copy_R) {
     auto val_ptr = R.get_csr_val();
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
-        for (int idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1];
-                ++idx)
+        for (int idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
             copy_R[idx] = val_ptr[idx];
+        }
     }
 }
 
-void copy_R1(DTYPE *copy_R, SparseMatrix &R) {
+void copy_R1(DTYPE* copy_R, SparseMatrix& R) {
     auto val_ptr = R.get_csr_val();
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
-        for (int idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1];
-                ++idx)
+        for (int idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
             val_ptr[idx] = copy_R[idx];
+        }
     }
 }
 
-void make_tile(SparseMatrix &R, MatInt &tiled_bin, const int TS) {
+void make_tile(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
         long idx = R.get_csc_col_ptr()[c];
         tiled_bin[0][c] = idx;
         for (int tile = TS; tile < (R.rows_ + TS - 1); tile += TS) {
             int tile_no = tile / TS; // - 1;
-            while (R.get_csc_row_indx()[idx] < tile
-                    && idx < R.get_csc_col_ptr()[c + 1]) {
+            while (R.get_csc_row_indx()[idx] < tile && idx < R.get_csc_col_ptr()[c + 1]) {
                 idx++;
             }
             tiled_bin[tile_no][c] = idx;
@@ -117,16 +118,14 @@ void make_tile(SparseMatrix &R, MatInt &tiled_bin, const int TS) {
     }
 }
 
-void make_tile_odd(SparseMatrix &R, MatInt &tiled_bin, const int TS) {
+void make_tile_odd(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
         long idx = R.get_csc_col_ptr()[c];
         tiled_bin[0][c] = idx;
-        for (int tile = TS + (TS / 2); tile < (R.rows_ + (TS + (TS / 2)) - 1);
-                tile += TS) {
+        for (int tile = TS + (TS / 2); tile < (R.rows_ + (TS + (TS / 2)) - 1); tile += TS) {
             int tile_no = tile / TS; // - 1;
-            while (R.get_csc_row_indx()[idx] < tile
-                    && idx < R.get_csc_col_ptr()[c + 1]) {
+            while (R.get_csc_row_indx()[idx] < tile && idx < R.get_csc_col_ptr()[c + 1]) {
                 idx++;
             }
             tiled_bin[tile_no][c] = idx;
@@ -134,8 +133,8 @@ void make_tile_odd(SparseMatrix &R, MatInt &tiled_bin, const int TS) {
     }
 }
 
-void tiled_binning(SparseMatrix &R, int *host_rowGroupPtr, int *LB, int *UB,
-        int *count, MatInt &tiled_bin, const int tile_no) {
+void tiled_binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB,
+                   int* count, MatInt& tiled_bin, const int tile_no) {
     for (int i = 0; i < NUM_THRDS; i++) {
         count[i] = 0;
         UB[i] = (1 << i) * THREADLOAD;
@@ -177,8 +176,8 @@ void tiled_binning(SparseMatrix &R, int *host_rowGroupPtr, int *LB, int *UB,
     //  printf("done for R\n");
 }
 
-void binning(SparseMatrix &R, int *host_rowGroupPtr, int *LB, int *UB,
-        int *count) {
+void binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB,
+             int* count) {
     for (int i = 0; i < NUM_THRDS; i++) {
         count[i] = 0;
         UB[i] = (1 << i) * THREADLOAD + 1;
@@ -201,49 +200,53 @@ void binning(SparseMatrix &R, int *host_rowGroupPtr, int *LB, int *UB,
         }
     }
 }
+
 __global__ void weighted_H_all(int const* __restrict__ R_colPtr,
-DTYPE * __restrict__ H, DTYPE * __restrict__ temp_H, int m, int k) {
+                               DTYPE* __restrict__ H, DTYPE* __restrict__ temp_H, int m, int k) {
     int c = blockIdx.x * blockDim.x + threadIdx.x;
     if (c < m) {
         int nnz = R_colPtr[c + 1] - R_colPtr[c];
         if (nnz != 0) {
-            for (int t = 0; t < k; ++t)
+            for (int t = 0; t < k; ++t) {
                 H[c * k + t] = temp_H[c * k + t] / nnz;
+            }
         }
     }
 }
 
 __global__ void weighted_H(int const* __restrict__ R_colPtr,
-        int const* __restrict__ R_rowLim, DTYPE * __restrict__ H,
-        DTYPE * __restrict__ temp_H, int m, int k) {
+                           int const* __restrict__ R_rowLim, DTYPE* __restrict__ H,
+                           DTYPE* __restrict__ temp_H, int m, int k) {
     int c = blockIdx.x * blockDim.x + threadIdx.x;
     if (c < m) {
         int nnz = R_rowLim[c] - R_colPtr[c];    ////////////-R_colPtr[c];
         if (nnz != 0) {
-            for (int t = 0; t < k; ++t)
+            for (int t = 0; t < k; ++t) {
                 H[c * k + t] = temp_H[c * k + t] / nnz;
+            }
         }
     }
 }
 
 __global__ void assignment(int const* __restrict__ R_colPtr,
-DTYPE * __restrict__ v, DTYPE * __restrict__ g, DTYPE *__restrict__ h,
-DTYPE lambda, int m) {
+                           DTYPE* __restrict__ v, DTYPE* __restrict__ g, DTYPE* __restrict__ h,
+                           DTYPE lambda, int m) {
     int c = blockIdx.x * blockDim.x + threadIdx.x;
     if (c < m) {
         DTYPE gc = g[c], hc = h[c];
-        if (hc == 0)
+        if (hc == 0) {
             v[c] = 0; //
-        else
+        } else {
             v[c] = gc / hc;
+        }
     }
 }
 
 __global__ void GPU_rmse(int const* __restrict__ test_row,
-        int const * __restrict__ test_col, DTYPE const * __restrict__ test_val,
-        DTYPE * __restrict__ pred_v, DTYPE * __restrict__ rmse,
-        DTYPE const * __restrict__ W, DTYPE const * __restrict__ H, int m,
-        int k, int rows, int cols) {
+                         int const* __restrict__ test_col, DTYPE const* __restrict__ test_val,
+                         DTYPE* __restrict__ pred_v, DTYPE* __restrict__ rmse,
+                         DTYPE const* __restrict__ W, DTYPE const* __restrict__ H, int m,
+                         int k, int rows, int cols) {
     int c = blockIdx.x * blockDim.x + threadIdx.x;
     if (c < m) {
         for (int t = 0; t < k; t++) {

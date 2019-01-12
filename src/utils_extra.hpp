@@ -82,10 +82,10 @@ inline constexpr T cexp_pow(const T base, unsigned const exponent) {
 template<unsigned LB, unsigned UB>
 struct LOOP {
     template<typename FUNCTOR>
-    LOOP(FUNCTOR &&fun) {
-        static_assert(LB<UB,"Lower Bound should be less than Upper bound");
+    LOOP(FUNCTOR&& fun) {
+        static_assert(LB < UB, "Lower Bound should be less than Upper bound");
         fun(LB);
-        LOOP<LB + 1, UB>(std::forward < FUNCTOR > (fun));
+        LOOP<LB + 1, UB>(std::forward<FUNCTOR>(fun));
     }
 };
 

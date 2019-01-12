@@ -85,16 +85,16 @@ using std::ifstream;
 class TestData;
 class SparseMatrix;
 class Options;
+
 using VecData = vector<DTYPE>;
 using MatData = vector<VecData>;
 using VecInt = vector<int>;
 using MatInt = vector<VecInt>;
 
-void ccdr1(SparseMatrix &R, MatData &W, MatData &H, TestData &T,
-        Options &options);
-void load_from_binary(const char* srcdir, SparseMatrix &R, TestData &data);
-MatData load_mat_t(FILE *fp, bool row_major = true);
-void init_random(MatData &X, long k, long n);
+void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& options);
+void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data);
+MatData load_mat_t(FILE* fp, bool row_major = true);
+void init_random(MatData& X, long k, long n);
 
 class SparseMatrix {
 
@@ -102,11 +102,11 @@ public:
     long rows_, cols_, nnz_, max_row_nnz_, max_col_nnz_;
 
     void read_binary_file(long rows, long cols, long nnz,
-            std::string fname_data, std::string fname_row,
-            std::string fname_col, std::string fname_csr_row_ptr,
-            std::string fname_csr_col_indx, std::string fname_csr_val,
-            std::string fname_csc_col_ptr, std::string fname_csc_row_indx,
-            std::string fname_csc_val);
+                          std::string fname_data, std::string fname_row,
+                          std::string fname_col, std::string fname_csr_row_ptr,
+                          std::string fname_csr_col_indx, std::string fname_csr_val,
+                          std::string fname_csc_col_ptr, std::string fname_csc_row_indx,
+                          std::string fname_csc_val);
 
     SparseMatrix get_shallow_transpose();
 
@@ -137,10 +137,10 @@ public:
 private:
 
     void read_compressed(std::string fname_cs_ptr, std::string fname_cs_indx,
-            std::string fname_cs_val, std::shared_ptr<int>&cs_ptr,
-            std::shared_ptr<unsigned int> &cs_indx,
-            std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr,
-            long &max_nnz_in_one_dim);
+                         std::string fname_cs_val, std::shared_ptr<int>& cs_ptr,
+                         std::shared_ptr<unsigned int>& cs_indx,
+                         std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr,
+                         long& max_nnz_in_one_dim);
 
     std::shared_ptr<int> csc_col_ptr_, csr_row_ptr_, col_nnz_, row_nnz_;
     std::shared_ptr<DTYPE> csr_val_, csc_val_;
@@ -177,7 +177,7 @@ public:
         return test_val.get();
     }
 
-    long rows_ { 0 }, cols_ { 0 }, nnz_ { 0 };
+    long rows_{0}, cols_{0}, nnz_{0};
 
 private:
 
@@ -189,7 +189,8 @@ class Options {
 public:
     int k = 10;
     int maxiter = 5;
-    int maxinneriter = 1;DTYPE lambda = .05;
+    int maxinneriter = 1;
+    DTYPE lambda = .05;
     int tileSizeW = 499999999;
     int tileSizeH = 499999999;
 
