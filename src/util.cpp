@@ -70,41 +70,49 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
 
     auto t0 = std::chrono::high_resolution_clock::now();
 
-    char filename[1024], buf[1024], binary_filename_val[1024], binary_filename_row[1024], binary_filename_col[1024];
-    char binary_filename_rowptr[1024], binary_filename_colidx[1024], binary_filename_csrval[1024];
-    char binary_filename_colptr[1024], binary_filename_rowidx[1024], binary_filename_cscval[1024];
-    sprintf(filename, "%s/meta_modified_all", srcdir);
+    char filename[1024];
+    char buf[1024];
+    char binary_filename_val[1024];
+    char binary_filename_row[1024];
+    char binary_filename_col[1024];
+    char binary_filename_rowptr[1024];
+    char binary_filename_colidx[1024];
+    char binary_filename_csrval[1024];
+    char binary_filename_colptr[1024];
+    char binary_filename_rowidx[1024];
+    char binary_filename_cscval[1024];
+
+    snprintf(filename, sizeof(filename), "%s/meta_modified_all", srcdir);
     FILE* fp = fopen(filename, "r");
     long m, n, nnz;
     fscanf(fp, "%ld %ld", &m, &n);
 
     fscanf(fp, "%ld", &nnz);
     fscanf(fp, "%1023s", buf);
-    sprintf(binary_filename_val, "%s/%s", srcdir, buf);
+    snprintf(binary_filename_val, sizeof(binary_filename_val), "%s/%s", srcdir, buf);
     fscanf(fp, "%1023s", buf);
-    sprintf(binary_filename_row, "%s/%s", srcdir, buf);
+    snprintf(binary_filename_row, sizeof(binary_filename_row), "%s/%s", srcdir, buf);
     fscanf(fp, "%1023s", buf);
-    sprintf(binary_filename_col, "%s/%s", srcdir, buf);
+    snprintf(binary_filename_col, sizeof(binary_filename_col), "%s/%s", srcdir, buf);
     fscanf(fp, "%1023s", buf);
-    sprintf(binary_filename_rowptr, "%s/%s", srcdir, buf);
+    snprintf(binary_filename_rowptr, sizeof(binary_filename_rowptr), "%s/%s", srcdir, buf);
     fscanf(fp, "%1023s", buf);
-    sprintf(binary_filename_colidx, "%s/%s", srcdir, buf);
+    snprintf(binary_filename_colidx, sizeof(binary_filename_colidx), "%s/%s", srcdir, buf);
     fscanf(fp, "%1023s", buf);
-    sprintf(binary_filename_csrval, "%s/%s", srcdir, buf);
+    snprintf(binary_filename_csrval, sizeof(binary_filename_csrval), "%s/%s", srcdir, buf);
     fscanf(fp, "%1023s", buf);
-    sprintf(binary_filename_colptr, "%s/%s", srcdir, buf);
+    snprintf(binary_filename_colptr, sizeof(binary_filename_colptr), "%s/%s", srcdir, buf);
     fscanf(fp, "%1023s", buf);
-    sprintf(binary_filename_rowidx, "%s/%s", srcdir, buf);
+    snprintf(binary_filename_rowidx, sizeof(binary_filename_rowidx), "%s/%s", srcdir, buf);
     fscanf(fp, "%1023s", buf);
-    sprintf(binary_filename_cscval, "%s/%s", srcdir, buf);
+    snprintf(binary_filename_cscval, sizeof(binary_filename_cscval), "%s/%s", srcdir, buf);
 
-    R.read_binary_file(m, n, nnz, binary_filename_val, binary_filename_row,
-                       binary_filename_col, binary_filename_rowptr, binary_filename_colidx,
-                       binary_filename_csrval, binary_filename_colptr,
-                       binary_filename_rowidx, binary_filename_cscval);
+    R.read_binary_file(m, n, nnz, binary_filename_val, binary_filename_row, binary_filename_col,
+                       binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
+                       binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
 
     if (fscanf(fp, "%ld %1023s", &nnz, buf) != EOF) {
-        sprintf(filename, "%s/%s", srcdir, buf);
+        snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
         data.read(m, n, nnz, filename);
     }
     fclose(fp);

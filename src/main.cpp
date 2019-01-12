@@ -65,13 +65,15 @@
 #include <time.h>
 
 void print_help_and_exit() {
-    printf("options:\n\
-        -k rank/feature : set the rank (default 10)\n\
-        -l lambda : set the regularization parameter lambda (default 0.05)\n\
-        -a tile size: set tile size for input matrix R (default 499999999)\n\
-        -b tile size: set tile size for input matrix R Transpose (default 499999999)\n\
-        -t max_iter: number of iterations (default 5)\n\
-        -T max_iter: number of inner iterations (default 1)\n");
+    printf(
+            "options:\n"
+            "    -k rank/feature : set the rank (default 10)\n"
+            "    -l lambda : set the regularization parameter lambda (default 0.05)\n"
+            "    -a tile size: set tile size for input matrix R (default 499999999)\n"
+            "    -b tile size: set tile size for input matrix R Transpose (default 499999999)\n"
+            "    -t max_iter: number of iterations (default 5)\n"
+            "    -T max_iter: number of inner iterations (default 1)\n"
+    );
     exit(1);
 }
 
