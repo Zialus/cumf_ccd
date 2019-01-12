@@ -116,7 +116,7 @@ Options parse_cmd_options(int argc, char** argv, char* train_file_directory) {
 
     if (i >= argc) { print_help_and_exit(); }
 
-    strcpy(train_file_directory, argv[i]);
+    snprintf(train_file_directory, 1024, "%s", argv[i]);
     return param;
 }
 
@@ -129,7 +129,8 @@ void run_ccdr1(Options& param, const char* train_file_directory) {
 //	DTYPE *h_a, *d_W, *h_c, *d_H, *d_R;
 //	struct timeval t1, t2;
     SparseMatrix R;
-    MatData W, H;
+    MatData W;
+    MatData H;
     TestData testdata;
 
     load_from_binary(train_file_directory, R, testdata);

@@ -74,17 +74,14 @@
 
 #include "common.h"
 
-using std::vector;
-using std::ifstream;
-
 class TestData;
 class SparseMatrix;
 class Options;
 
-using VecData = vector<DTYPE>;
-using MatData = vector<VecData>;
-using VecInt = vector<int>;
-using MatInt = vector<VecInt>;
+using VecData = std::vector<DTYPE>;
+using MatData = std::vector<VecData>;
+using VecInt = std::vector<int>;
+using MatInt = std::vector<VecInt>;
 
 void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& options);
 void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data);
@@ -154,7 +151,7 @@ public:
         test_col = std::unique_ptr<int[]>(new int[nnz]);
         test_val = std::unique_ptr<DTYPE[]>(new DTYPE[nnz]);
 
-        ifstream fp(filename);
+        std::ifstream fp(filename);
         for (long idx = 0; idx < nnz; ++idx) {
             fp >> test_row[idx] >> test_col[idx] >> test_val[idx];
         }
