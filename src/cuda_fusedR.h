@@ -67,7 +67,7 @@
 
 #include "common.h"
 
-template<bool UseCache, unsigned POWER, unsigned Nth_POWER>
+template<unsigned POWER, unsigned Nth_POWER>
 __global__ void updateR_gen(int const* __restrict__ R_colPtr,
                             int const* __restrict__ R_rowLim, unsigned* R_rowIdx, DTYPE* R_val,
                             const DTYPE* __restrict__ u, const DTYPE* __restrict__ v, int m,
@@ -118,7 +118,6 @@ __global__ void updateR_gen(int const* __restrict__ R_colPtr,
     }
 }
 
-template<bool UseCache>
 __global__ void updateR_7(int const* __restrict__ R_colPtr,
                           int const* __restrict__ R_rowLim, unsigned* R_rowIdx, DTYPE* R_val,
                           const DTYPE* __restrict__ u, const DTYPE* __restrict__ v, int m,

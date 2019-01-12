@@ -67,7 +67,7 @@
 
 #include "common.h"
 
-template<bool UseCache, unsigned POWER, unsigned Nth_POWER>
+template<unsigned POWER, unsigned Nth_POWER>
 __global__ void CudaRankOneUpdate_gen(int const* __restrict__ R_colPtr,
                                       int const* __restrict__ R_rowLim,
                                       const unsigned* __restrict__ R_rowIdx, DTYPE* R_val,
@@ -105,7 +105,6 @@ __global__ void CudaRankOneUpdate_gen(int const* __restrict__ R_colPtr,
     }
 }
 
-template<bool UseCache>
 __global__ void CudaRankOneUpdate_7(int const* __restrict__ R_colPtr,
                                     int const* __restrict__ R_rowLim, unsigned* R_rowIdx, DTYPE* R_val,
                                     DTYPE* u, const DTYPE* __restrict__ v, int m, int n, bool add,
