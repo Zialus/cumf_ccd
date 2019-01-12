@@ -65,8 +65,7 @@ void make_tile_odd(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
     }
 }
 
-void tiled_binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB,
-                   int* count, MatInt& tiled_bin, const int tile_no) {
+void tiled_binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB, int* count, MatInt& tiled_bin, const int tile_no) {
     for (int i = 0; i < NUM_THRDS; i++) {
         count[i] = 0;
         UB[i] = (1 << i) * THREADLOAD;
@@ -108,8 +107,7 @@ void tiled_binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB,
     //  printf("done for R\n");
 }
 
-void binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB,
-             int* count) {
+void binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB, int* count) {
     for (int i = 0; i < NUM_THRDS; i++) {
         count[i] = 0;
         UB[i] = (1 << i) * THREADLOAD + 1;
