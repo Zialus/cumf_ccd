@@ -73,7 +73,6 @@ matrix:
           token:
             secure: "aHTVrZn6eFrAw+3BSmvHQiSmHtMosYpiBRr3NetWPUdXUUVvEH21TogII75+Bg9ZP7VLKxcfRnMPWJnnAYUaOjd0GIn4LV/76Mxf/LcLVx6nWEgs+j8KiK3Y96ujniCFxLzV6gTQaIW+IFWVOhX5Vkf+NcN94EM1MuhHOqCHtJKx6pli1zDhApxXQcLYsytMKxzXrLBK8A+Akiw85vcSb2Pql8kCTECilOpAV5CQwfB4ORXyIYC6KzXtzbZiiPce51Z/hiyAydeJdEBUeGQrvarR9hj+X7dlDa0fPQZQDVFWl0aPDTe8BYXHnTkaTxtZoqtDsdyZ8+HGiZ8JBD7o9bla6P9gvf+GP1eW5D4H2rNK57caZyC38kdwm3e3VXGK6D8SusYCyG75ep5Peuz1XDoykMI/dFkZyfESI+yyIkgDBjw+V+u7m+b9AsgLmtHOa+hJXUeHZPDiVlTDv26OHqxgIDq7nA5k/9/mekp6eiJSqzH74TtsZGaIXGrnXuZbbR02i+64V+nLYQZaruQEyZQGZEcRBsX2gQBEpCJyWYYj0yFeen/jnaL7QeCBQbRFIC1aDHdRByrn1nYpsVS9dEt95plKAia+T2ZUZ3TPZ/3yCJZhZdUFBhsXbCo2HNfirqYYKN6Apg3CEqVzpi21ksb+39LmyTdFa2GXAo8Eaak="
       script:
-        - git fetch --unshallow
         - mkdir build && cd build
         - cmake -DCMAKE_BUILD_TYPE=Release ..
         - build-wrapper-linux-x86-64 --out-dir bw-output make clean all

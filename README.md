@@ -5,10 +5,10 @@ cmake .. && make
 
 ## How to run
 
-$ ./exec/ccdp_gpu data/toy_example data/toy_example/test.ratings
+$ ./exec/ccdp_gpu data/toy_example
 (more examples below)
 
-##Input format
+## Input format
 
 The input should be in binary format (See toy_example directory for details).
 
@@ -24,7 +24,7 @@ line 4 has nnz in test dataset and test filename
 
 ## Arguments
 
-    $ ./ccdp_gpu [options] [input file directoty containing meta_modified_all] [test file path]
+    $ ./ccdp_gpu [options] [input file directoty containing meta_modified_all]
 
     options:
         -k rank/feature : set the rank (default 10)
@@ -38,13 +38,13 @@ line 4 has nnz in test dataset and test filename
 ## Examples:
 
 To run Netflix:
-$ ./ccdp_gpu -T 1 -a 100000 -b 100000 -l .058 -k 40 -t 10 ../data/Netflix
+    $ ./ccdp_gpu -T 1 -a 100000 -b 100000 -l .058 -k 40 -t 10 ../data/netflix
 
 To run Yahoo Music:
-$ ./ccdp_gpu -T 1 -a 100000 -b 100000 -l 1.2 -k 40 -t 10 ../data/Yahoo_music
+    $ ./ccdp_gpu -T 1 -a 100000 -b 100000 -l 1.2 -k 40 -t 10 ../data/Yahoo_music
 alternative?:
-$ ./ccdp_gpu -T 2 -a 220000 -b 240000 -l 1.2 -k 40 -t 2 ../data/Yahoo_music
+    $ ./ccdp_gpu -T 2 -a 220000 -b 240000 -l 1.2 -k 40 -t 2 ../data/Yahoo_music
 
 To run Movielens:
-$ ./ccdp_gpu -T 1 -a 100000 -b 100000 -l .05 -k 40 -t 15 ../data/ml-20m/
+    $ ./ccdp_gpu -T 1 -a 100000 -b 100000 -l .05 -k 40 -t 15 ../data/ml-20m/
 
