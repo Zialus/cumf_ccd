@@ -70,6 +70,7 @@
 #include <vector>
 #include <omp.h>
 #include <cassert>
+#include <algorithm>
 
 #include "common.h"
 

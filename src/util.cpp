@@ -117,10 +117,10 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
 
 void init_random(MatData& X, long k, long n) {
     X = MatData(k, VecData(n));
-    srand48(0L);
+    srand(0L);
     for (long i = 0; i < n; ++i) {
         for (long j = 0; j < k; ++j) {
-            X[j][i] = 0.1 * drand48();
+            X[j][i] = (DTYPE) 0.1 * ((DTYPE) rand() / RAND_MAX);
         }
     }
 }
