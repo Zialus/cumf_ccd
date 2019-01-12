@@ -176,7 +176,7 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T,
 
     //****************** preprrocessing TILING*************
 
-    double t1 = seconds();
+    auto t1 = std::chrono::high_resolution_clock::now();
     int total_tileInRows = (R.rows_ + tileSize_H - 1) / tileSize_H;
     int total_tileInCols = (R.cols_ + tileSize_W - 1) / tileSize_W;
 

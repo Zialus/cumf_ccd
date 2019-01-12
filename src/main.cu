@@ -63,7 +63,6 @@
 #include <cuda.h>
 #include <cstring>
 #include <time.h>
-#include <sys/time.h>
 
 void print_help_and_exit() {
     printf("options:\n\
@@ -137,10 +136,11 @@ void run_ccdr1(Options& param, const char* train_file_directory) {
     init_random(H, param.k, R.cols_);
 
     puts("starts!");
-    double t0 = seconds();
+    auto t0 = std::chrono::high_resolution_clock::now();
     ccdr1(R, W, H, testdata, param);
-    double t1 = seconds();
-    printf("\nTotal seconds: %.3f for F= %d\n\n", t1 - t0, param.k);
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t1 - t0;
+    printf("\nTotal seconds: %.3f for F= %d\n\n", deltaT.count(), param.k);
     return;
 }
 

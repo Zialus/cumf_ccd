@@ -64,7 +64,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <sys/time.h>
+#include <chrono>
 #include <memory>
 #include <limits>
 #include <vector>
@@ -72,12 +72,6 @@
 #include <cassert>
 
 #include "common.h"
-
-inline double seconds() {
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    return ((double) tp.tv_sec + (double) tp.tv_usec * 1.e-6);
-}
 
 using std::vector;
 using std::ifstream;

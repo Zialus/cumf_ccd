@@ -68,7 +68,7 @@
 void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     printf("Loading from binary file...\n");
 
-    double t0 = seconds();
+    auto t0 = std::chrono::high_resolution_clock::now();
 
     char filename[1024], buf[1024], binary_filename_val[1024], binary_filename_row[1024], binary_filename_col[1024];
     char binary_filename_rowptr[1024], binary_filename_colidx[1024], binary_filename_csrval[1024];
@@ -109,8 +109,9 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     }
     fclose(fp);
 
-    double t1 = seconds();
-    printf("Total seconds: %.3f \n", t1 - t0);
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t1 - t0;
+    printf("Total seconds: %.3f \n", deltaT.count());
 
 }
 
