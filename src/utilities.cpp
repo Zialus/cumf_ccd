@@ -36,7 +36,7 @@ void copy_R1(DTYPE* copy_R, SparseMatrix& R) {
 void make_tile(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
-        long idx = R.get_csc_col_ptr()[c];
+        int idx = R.get_csc_col_ptr()[c];
         tiled_bin[0][c] = idx;
         for (int tile = TS; tile < (R.rows_ + TS - 1); tile += TS) {
             int tile_no = tile / TS; // - 1;
@@ -51,7 +51,7 @@ void make_tile(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
 void make_tile_odd(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
-        long idx = R.get_csc_col_ptr()[c];
+        int idx = R.get_csc_col_ptr()[c];
         tiled_bin[0][c] = idx;
         for (int tile = TS + (TS / 2); tile < (R.rows_ + (TS + (TS / 2)) - 1); tile += TS) {
             int tile_no = tile / TS; // - 1;
@@ -118,7 +118,7 @@ void binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB, int* coun
     omp_set_num_threads(NUM_THRDS); // create as many CPU threads as there are # of bins
 #pragma omp parallel
     {
-        unsigned int cpu_thread_id = omp_get_thread_num();
+        int cpu_thread_id = omp_get_thread_num();
         int i = cpu_thread_id;
         for (int col = 0; col < R.cols_; col++) {
             int NNZ = R.get_csc_col_ptr()[col + 1] - R.get_csc_col_ptr()[col];

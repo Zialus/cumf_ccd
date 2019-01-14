@@ -64,7 +64,6 @@
 
 #include "cuda_fusedR.h"
 #include "utils_extra.hpp"
-#include <cmath>
 
 #include "common.h"
 #include "cuda_common.h"
@@ -90,7 +89,7 @@ struct RANK_LOOP {
 
         if (count[LB] > 0) {
             constexpr unsigned BLOCKSIZE_V2 = 128;
-            constexpr unsigned POWER = TMP_power<2, LB>::value;
+            constexpr int POWER = TMP_power<2, LB>::value;
             grid.x = (POWER * count[LB] + BLOCKSIZE_V2 - 1) / BLOCKSIZE_V2;
             updateR_gen<POWER, LB> <<<grid, BLOCKSIZE_V2, 0, stream[LB]>>>(d_R_colPtr, d_row_lim, d_R_rowIdx, d_R_val, d_Wt, d_Ht, m,
                             n, add, rowGroupPtr + sum, count[LB], lambda, d_gArrV, d_hArrV, v_new, Wt_p, Ht_p, t);
