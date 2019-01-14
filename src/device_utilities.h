@@ -65,7 +65,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
-#include "util.h"
 #include "common.h"
 
 __global__ void weighted_H_all(int const* __restrict__ R_colPtr, DTYPE* __restrict__ H, DTYPE* __restrict__ temp_H, int m, int k);

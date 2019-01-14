@@ -60,9 +60,6 @@
  */
 
 #include "util.h"
-#include <cuda.h>
-#include <cstring>
-#include <time.h>
 
 void print_help_and_exit() {
     printf(
@@ -74,13 +71,13 @@ void print_help_and_exit() {
             "    -t max_iter: number of iterations (default 5)\n"
             "    -T max_iter: number of inner iterations (default 1)\n"
     );
-    exit(1);
+    exit(EXIT_FAILURE);
 }
 
-Options parse_cmd_options(int argc, char** argv, char* train_file_directory) {
+Options parse_cmd_options(int argc, char** argv) {
     Options param;
+
     int i;
-    //handle options
     for (i = 1; i < argc; i++) {
         if (argv[i][0] != '-') {
             break;
@@ -93,7 +90,7 @@ Options parse_cmd_options(int argc, char** argv, char* train_file_directory) {
                 param.k = atoi(argv[i]);
                 break;
             case 'l':
-                param.lambda = atof(argv[i]);
+                param.lambda = (DTYPE) atof(argv[i]);
                 break;
             case 't':
                 param.maxiter = atoi(argv[i]);
@@ -114,46 +111,42 @@ Options parse_cmd_options(int argc, char** argv, char* train_file_directory) {
         }
     }
 
-    if (i >= argc) { print_help_and_exit(); }
+    if (i >= argc) {
+        print_help_and_exit();
+    }
 
-    snprintf(train_file_directory, 1024, "%s", argv[i]);
+    snprintf(param.data_directory, 1024, "%s", argv[i]);
     return param;
 }
 
-void run_ccdr1(Options& param, const char* train_file_directory) {
-
-//	cudaEvent_t start, stop;
-//	float elapsedTime;
-//	clock_t start, end;
-//	double cpu_time_used;
-//	DTYPE *h_a, *d_W, *h_c, *d_H, *d_R;
-//	struct timeval t1, t2;
+void run_ccdr1(Options& param, const char* data_directory) {
     SparseMatrix R;
     MatData W;
     MatData H;
-    TestData testdata;
+    TestData T;
 
-    load_from_binary(train_file_directory, R, testdata);
-    // W, H  here are k*m, k*n
+    printf("Loading from binary file...\n");
+    auto t0 = std::chrono::high_resolution_clock::now();
+    load_from_binary(data_directory, R, T);
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t1 - t0;
+    printf("Total seconds: %.3f \n", deltaT.count());
+
     init_random(W, param.k, R.rows_);
     init_random(H, param.k, R.cols_);
 
-    puts("starts!");
-    auto t0 = std::chrono::high_resolution_clock::now();
-    ccdr1(R, W, H, testdata, param);
-    auto t1 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> deltaT = t1 - t0;
-    printf("\nTotal seconds: %.3f for F= %d\n\n", deltaT.count(), param.k);
-    return;
+    printf("\nComputing with CCD!!\n");
+    auto t2 = std::chrono::high_resolution_clock::now();
+    ccdr1(R, W, H, T, param);
+    auto t3 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT23 = t3 - t2;
+    printf("\nTotal seconds: %.3f for F= %d\n\n", deltaT23.count(), param.k);
 }
 
 int main(int argc, char* argv[]) {
-    char train_file_directory[1024];
-
-    Options options = parse_cmd_options(argc, argv, train_file_directory);
+    Options options = parse_cmd_options(argc, argv);
     options.print();
 
-    run_ccdr1(options, train_file_directory);
-    return 0;
+    run_ccdr1(options, options.data_directory);
+    return EXIT_SUCCESS;
 }
-

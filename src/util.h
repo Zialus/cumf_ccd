@@ -85,11 +85,9 @@ using MatInt = std::vector<VecInt>;
 
 void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& options);
 void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data);
-MatData load_mat_t(FILE* fp, bool row_major = true);
 void init_random(MatData& X, long k, long n);
 
 class SparseMatrix {
-
 public:
     long rows_, cols_, nnz_, max_row_nnz_, max_col_nnz_;
 
@@ -127,12 +125,9 @@ public:
     }
 
 private:
-
-    void read_compressed(std::string fname_cs_ptr, std::string fname_cs_indx,
-                         std::string fname_cs_val, std::shared_ptr<int>& cs_ptr,
-                         std::shared_ptr<unsigned int>& cs_indx,
-                         std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr,
-                         long& max_nnz_in_one_dim);
+    void read_compressed(std::string fname_cs_ptr, std::string fname_cs_indx, std::string fname_cs_val,
+                         std::shared_ptr<int>& cs_ptr, std::shared_ptr<unsigned int>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
+                         long num_elems_in_cs_ptr, long& max_nnz_in_one_dim);
 
     std::shared_ptr<int> csc_col_ptr_, csr_row_ptr_, col_nnz_, row_nnz_;
     std::shared_ptr<DTYPE> csr_val_, csc_val_;
@@ -140,9 +135,10 @@ private:
 };
 
 class TestData {
-
 public:
-    void read(long rows, long cols, long nnz, std::string filename) {
+    long rows_, cols_, nnz_;
+
+    void read(long rows, long cols, long nnz, const std::string& filename) {
         this->rows_ = rows;
         this->cols_ = cols;
         this->nnz_ = nnz;
@@ -169,10 +165,7 @@ public:
         return test_val.get();
     }
 
-    long rows_{0}, cols_{0}, nnz_{0};
-
 private:
-
     std::unique_ptr<int[]> test_row, test_col;
     std::unique_ptr<DTYPE[]> test_val;
 };
@@ -185,13 +178,14 @@ public:
     DTYPE lambda = .05;
     int tileSizeW = 499999999;
     int tileSizeH = 499999999;
+    char data_directory[1024] = "../data/simple";
 
     void print() {
         std::cout << "k = " << k << '\n';
-        std::cout << "iterinner = " << maxinneriter << '\n';
-        std::cout << "outeriter = " << maxiter << '\n';
-        std::cout << "tsw = " << tileSizeW << '\n';
-        std::cout << "tsh = " << tileSizeH << '\n';
+        std::cout << "iter_inner = " << maxinneriter << '\n';
+        std::cout << "iter_outer = " << maxiter << '\n';
+        std::cout << "tsW = " << tileSizeW << '\n';
+        std::cout << "tsH = " << tileSizeH << '\n';
         std::cout << "lambda = " << lambda << '\n';
     }
 };

@@ -16,7 +16,7 @@ __global__ void weighted_H(int const* __restrict__ R_colPtr, int const* __restri
                            DTYPE* __restrict__ temp_H, int m, int k) {
     int c = blockIdx.x * blockDim.x + threadIdx.x;
     if (c < m) {
-        int nnz = R_rowLim[c] - R_colPtr[c];    ////////////-R_colPtr[c];
+        int nnz = R_rowLim[c] - R_colPtr[c]; // -R_colPtr[c];
         if (nnz != 0) {
             for (int t = 0; t < k; ++t) {
                 H[c * k + t] = temp_H[c * k + t] / nnz;

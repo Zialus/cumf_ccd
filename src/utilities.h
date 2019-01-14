@@ -8,7 +8,6 @@ void cuda_timerStart(cudaEvent_t start, cudaStream_t streamT);
 
 float cuda_timerEnd(cudaEvent_t start, cudaEvent_t stop, cudaStream_t streamT);
 
-//R to R copy
 void copy_R(SparseMatrix& R, DTYPE* copy_R);
 
 void copy_R1(DTYPE* copy_R, SparseMatrix& R);

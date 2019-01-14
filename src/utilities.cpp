@@ -11,10 +11,8 @@ float cuda_timerEnd(cudaEvent_t start, cudaEvent_t stop, cudaStream_t streamT) {
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&mili, start, stop);
     return mili;
-
 }
 
-//R to R copy
 void copy_R(SparseMatrix& R, DTYPE* copy_R) {
     auto val_ptr = R.get_csr_val();
 #pragma omp parallel for
@@ -73,7 +71,7 @@ void tiled_binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB, int
     }
     LB[0] = 0;
     UB[NUM_THRDS - 1] = R.max_col_nnz_ + 1;
-    // // // // //***********binned
+    //***********binned
     // omp_set_num_threads(NUM_THRDS);  // create as many CPU threads as there are # of bins
     // #pragma omp parallel
     // {

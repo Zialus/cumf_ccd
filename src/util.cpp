@@ -61,15 +61,7 @@
 
 #include "util.h"
 
-#define type DTYPE
-#define MALLOC(type, size) (type*)malloc(sizeof(type)*(size))
-
-// load utility
 void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
-    printf("Loading from binary file...\n");
-
-    auto t0 = std::chrono::high_resolution_clock::now();
-
     char filename[1024];
     char buf[1024];
     char binary_filename_val[1024];
@@ -116,11 +108,6 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
         data.read(m, n, nnz, filename);
     }
     fclose(fp);
-
-    auto t1 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> deltaT = t1 - t0;
-    printf("Total seconds: %.3f \n", deltaT.count());
-
 }
 
 void init_random(MatData& X, long k, long n) {
@@ -128,7 +115,7 @@ void init_random(MatData& X, long k, long n) {
     srand(0L);
     for (long i = 0; i < n; ++i) {
         for (long j = 0; j < k; ++j) {
-            X[j][i] = (DTYPE) 0.1 * ((DTYPE) rand() / RAND_MAX);
+            X[j][i] = (DTYPE) 0.1 * ((DTYPE) rand() / RAND_MAX) + (DTYPE) 0.001;
         }
     }
 }
