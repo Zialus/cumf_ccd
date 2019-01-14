@@ -68,6 +68,7 @@ template<int A, int B>
 struct TMP_power {
     static const int value = A * TMP_power<A, B - 1>::value;
 };
+
 template<int A>
 struct TMP_power<A, 0> {
     static const int value = 1;

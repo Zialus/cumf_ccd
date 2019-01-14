@@ -68,9 +68,11 @@
 #include <memory>
 #include <limits>
 #include <vector>
-#include <omp.h>
-#include <cassert>
 #include <algorithm>
+
+#include <cassert>
+
+#include <omp.h>
 
 #include "common.h"
 
