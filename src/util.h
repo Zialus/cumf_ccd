@@ -76,6 +76,11 @@
 
 #include "common.h"
 
+#define CHECK_FSCAN(err, num)    if(err != num){ \
+    perror("FSCANF"); \
+    exit(EXIT_FAILURE); \
+}
+
 class TestData;
 class SparseMatrix;
 class Options;

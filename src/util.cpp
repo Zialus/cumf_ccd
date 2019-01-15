@@ -63,6 +63,14 @@
 
 void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     char filename[1024];
+    snprintf(filename, sizeof(filename), "%s/meta_modified_all", srcdir);
+    FILE* fp = fopen(filename, "r");
+
+    long m;
+    long n;
+    long nnz;
+    CHECK_FSCAN(fscanf(fp, "%ld %ld %ld", &m, &n, &nnz), 3);
+
     char buf[1024];
     char binary_filename_val[1024];
     char binary_filename_row[1024];
@@ -74,29 +82,23 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     char binary_filename_rowidx[1024];
     char binary_filename_cscval[1024];
 
-    snprintf(filename, sizeof(filename), "%s/meta_modified_all", srcdir);
-    FILE* fp = fopen(filename, "r");
-    long m, n, nnz;
-    fscanf(fp, "%ld %ld", &m, &n);
-
-    fscanf(fp, "%ld", &nnz);
-    fscanf(fp, "%1023s", buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_val, sizeof(binary_filename_val), "%s/%s", srcdir, buf);
-    fscanf(fp, "%1023s", buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_row, sizeof(binary_filename_row), "%s/%s", srcdir, buf);
-    fscanf(fp, "%1023s", buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_col, sizeof(binary_filename_col), "%s/%s", srcdir, buf);
-    fscanf(fp, "%1023s", buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_rowptr, sizeof(binary_filename_rowptr), "%s/%s", srcdir, buf);
-    fscanf(fp, "%1023s", buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_colidx, sizeof(binary_filename_colidx), "%s/%s", srcdir, buf);
-    fscanf(fp, "%1023s", buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_csrval, sizeof(binary_filename_csrval), "%s/%s", srcdir, buf);
-    fscanf(fp, "%1023s", buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_colptr, sizeof(binary_filename_colptr), "%s/%s", srcdir, buf);
-    fscanf(fp, "%1023s", buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_rowidx, sizeof(binary_filename_rowidx), "%s/%s", srcdir, buf);
-    fscanf(fp, "%1023s", buf);
+    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_cscval, sizeof(binary_filename_cscval), "%s/%s", srcdir, buf);
 
     R.read_binary_file(m, n, nnz, binary_filename_val, binary_filename_row, binary_filename_col,

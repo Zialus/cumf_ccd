@@ -199,9 +199,6 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
     gpuErrchk(cudaEventElapsedTime(&mili, start, stop));
 
     float ACSRTime = 0;
-    float textureACSRTime = 0;
-    float innerLoopTime = 0;
-    float ACSRPreProcessTime;
 
     cudaStream_t streamT;
     gpuErrchk(cudaStreamCreate(&streamT));
