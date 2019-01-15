@@ -68,13 +68,6 @@
 #include "common.h"
 #include "cuda_common.h"
 
-void create_stream() {
-    for (int i = 0; i < NUM_THRDS; i++) {
-        cudaStreamCreate(&(stream[i]));
-    }
-    cudaStreamCreate(&(stream[NUM_THRDS]));
-}
-
 template<unsigned LB, unsigned UB>
 struct RANK_LOOP {
     RANK_LOOP() = delete;
