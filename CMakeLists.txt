@@ -37,23 +37,23 @@ endif ()
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
 #endif ()
 
-# Compiler flags to silence warnings during all compilations
-#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-#endif ()
+# Compiler flags to silence/or add some warnings during all compilations
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /w44365")
+endif ()
 
-# Silence warnings only during nvcc compilation
-#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-#    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-#    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
-#endif ()
+# Compiler flags to silence/or add some warnings only during nvcc compilation
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
+endif ()
 
 
 # Silence warning C4996 on Microsoft Compilers
