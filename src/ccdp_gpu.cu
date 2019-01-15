@@ -66,13 +66,13 @@
 #include "helper_fusedR.h"
 #include "helper_updateH.h"
 
-inline cudaError_t checkCuda(cudaError_t result, int s) {
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 
-    if (result != cudaSuccess) {
-        fprintf(stderr, "CUDA Runtime Error in line : %s - %d\n", cudaGetErrorString(result), s);
-        assert(result == cudaSuccess);
+inline void gpuAssert(cudaError_t code, const char* file, int line) {
+    if (code != cudaSuccess) {
+        fprintf(stderr, "GPUassert: %s - %s %d\n", cudaGetErrorString(code), file, line);
+        assert(code == cudaSuccess);
     }
-    return result;
 }
 
 // Cyclic Coordinate Descent for Matrix Factorization
@@ -142,7 +142,7 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
 
     //**************************CUDA COPY************************
 
-    checkCuda(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1), __LINE__);
+    gpuErrchk(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
     size_t RCols_memsize = (R.cols_) * sizeof(DTYPE);
     size_t RRows_memsize = (R.rows_) * sizeof(DTYPE);
 
@@ -151,31 +151,31 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
     size_t R_rowIdx_memsize = R.nnz_ * sizeof(unsigned);
     size_t R_val_memsize = R.nnz_ * sizeof(DTYPE);
 
-    checkCuda(cudaMalloc((void**) &d_W, k * R.rows_ * sizeof(DTYPE)), 0);
-    checkCuda(cudaMalloc((void**) &d_H, k * R.cols_ * sizeof(DTYPE)), 1);
-    checkCuda(cudaMalloc((void**) &d_Wt, R.rows_ * sizeof(DTYPE)), 0);
-    checkCuda(cudaMalloc((void**) &d_Ht, R.cols_ * sizeof(DTYPE)), 1);
-    checkCuda(cudaMalloc((void**) &d_u, RRows_memsize), 0);
-    checkCuda(cudaMalloc((void**) &d_v, RCols_memsize), 1);
-    checkCuda(cudaMalloc((void**) &d_v_new, RCols_memsize), 1);
-    checkCuda(cudaMalloc((void**) &d_gArrU, RRows_memsize), 2);
-    checkCuda(cudaMalloc((void**) &d_hArrU, RRows_memsize), 3);
-    checkCuda(cudaMalloc((void**) &d_gArrV, RCols_memsize), 2);
-    checkCuda(cudaMalloc((void**) &d_hArrV, RCols_memsize), 3);
-    checkCuda(cudaMalloc((void**) &d_R_colPtr, R_colPtr_memsize), 4);
-    checkCuda(cudaMalloc((void**) &d_R_rowPtr, R_rowPtr_memsize), 5);
-    checkCuda(cudaMalloc((void**) &d_R_rowIdx, R_rowIdx_memsize), 6);
-    checkCuda(cudaMalloc((void**) &d_R_colIdx, R_rowIdx_memsize), 8);
-    checkCuda(cudaMalloc((void**) &d_R_val, R_val_memsize), 7);
-    checkCuda(cudaMalloc((void**) &d_R_val_t, R_val_memsize), 7);
-    checkCuda(cudaMalloc((void**) &d_loss, 1 * sizeof(DTYPE)), 11);
-    checkCuda(cudaMalloc((void**) &d_test_row, (T.nnz_ + 1) * sizeof(int)), 7);
-    checkCuda(cudaMalloc((void**) &d_test_col, (T.nnz_ + 1) * sizeof(int)), 7);
-    checkCuda(cudaMalloc((void**) &d_test_val, (T.nnz_ + 1) * sizeof(DTYPE)), 7);
-    checkCuda(cudaMalloc((void**) &d_pred_v, (T.nnz_ + 1) * sizeof(DTYPE)), 7);
-    checkCuda(cudaMalloc((void**) &d_rmse, (T.nnz_ + 1) * sizeof(DTYPE)), 7);
+    gpuErrchk(cudaMalloc((void**) &d_W, k * R.rows_ * sizeof(DTYPE)));
+    gpuErrchk(cudaMalloc((void**) &d_H, k * R.cols_ * sizeof(DTYPE)));
+    gpuErrchk(cudaMalloc((void**) &d_Wt, R.rows_ * sizeof(DTYPE)));
+    gpuErrchk(cudaMalloc((void**) &d_Ht, R.cols_ * sizeof(DTYPE)));
+    gpuErrchk(cudaMalloc((void**) &d_u, RRows_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_v, RCols_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_v_new, RCols_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_gArrU, RRows_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_hArrU, RRows_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_gArrV, RCols_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_hArrV, RCols_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_R_colPtr, R_colPtr_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_R_rowPtr, R_rowPtr_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_R_rowIdx, R_rowIdx_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_R_colIdx, R_rowIdx_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_R_val, R_val_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_R_val_t, R_val_memsize));
+    gpuErrchk(cudaMalloc((void**) &d_loss, 1 * sizeof(DTYPE)));
+    gpuErrchk(cudaMalloc((void**) &d_test_row, (T.nnz_ + 1) * sizeof(int)));
+    gpuErrchk(cudaMalloc((void**) &d_test_col, (T.nnz_ + 1) * sizeof(int)));
+    gpuErrchk(cudaMalloc((void**) &d_test_val, (T.nnz_ + 1) * sizeof(DTYPE)));
+    gpuErrchk(cudaMalloc((void**) &d_pred_v, (T.nnz_ + 1) * sizeof(DTYPE)));
+    gpuErrchk(cudaMalloc((void**) &d_rmse, (T.nnz_ + 1) * sizeof(DTYPE)));
 
-    checkCuda(cudaEventRecord(start), __LINE__);
+    gpuErrchk(cudaEventRecord(start));
     cudaMemcpy(d_R_colPtr, R.get_csc_col_ptr(), R_colPtr_memsize, cudaMemcpyHostToDevice);
     cudaMemcpy(d_R_rowPtr, R.get_csr_row_ptr(), R_rowPtr_memsize, cudaMemcpyHostToDevice);
     cudaMemcpy(d_R_rowIdx, R.get_csc_row_indx(), R_rowIdx_memsize, cudaMemcpyHostToDevice);
@@ -194,9 +194,9 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
     cudaMemcpy(d_test_col, T.getTestCol(), (T.nnz_ + 1) * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_test_val, T.getTestVal(), (T.nnz_ + 1) * sizeof(DTYPE), cudaMemcpyHostToDevice);
 
-    checkCuda(cudaEventRecord(stop), __LINE__);
-    checkCuda(cudaDeviceSynchronize(), __LINE__);
-    checkCuda(cudaEventElapsedTime(&mili, start, stop), __LINE__);
+    gpuErrchk(cudaEventRecord(stop));
+    gpuErrchk(cudaDeviceSynchronize());
+    gpuErrchk(cudaEventElapsedTime(&mili, start, stop));
 
     float ACSRTime = 0;
     float textureACSRTime = 0;
@@ -204,7 +204,7 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
     float ACSRPreProcessTime;
 
     cudaStream_t streamT;
-    checkCuda(cudaStreamCreate(&streamT), __LINE__);
+    gpuErrchk(cudaStreamCreate(&streamT));
 
     //****************** Preprocessing TILING*************
 
@@ -221,31 +221,29 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
 
     //copying tiles limit rowPointers
 
-    checkCuda(cudaEventRecord(start), __LINE__);
+    gpuErrchk(cudaEventRecord(start));
 
-    checkCuda(cudaMalloc((void**) &d_row_lim_R, (total_tileInRows + 1) * (R.cols_ + 1) * sizeof(int)), 0);
-    checkCuda(cudaMalloc((void**) &d_row_lim_Rt, (total_tileInCols + 1) * (R.rows_ + 1) * sizeof(int)), 0);
+    gpuErrchk(cudaMalloc((void**) &d_row_lim_R, (total_tileInRows + 1) * (R.cols_ + 1) * sizeof(int)));
+    gpuErrchk(cudaMalloc((void**) &d_row_lim_Rt, (total_tileInCols + 1) * (R.rows_ + 1) * sizeof(int)));
 
-    checkCuda(cudaMemcpy(d_row_lim_R, R.get_csc_col_ptr(), (R.cols_ + 1) * sizeof(int), cudaMemcpyHostToDevice),
-              __LINE__);
-    checkCuda(cudaMemcpy(d_row_lim_Rt, R.get_csr_row_ptr(), (R.rows_ + 1) * sizeof(int), cudaMemcpyHostToDevice),
-              __LINE__);
+    gpuErrchk(cudaMemcpy(d_row_lim_R, R.get_csc_col_ptr(), (R.cols_ + 1) * sizeof(int), cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(d_row_lim_Rt, R.get_csr_row_ptr(), (R.rows_ + 1) * sizeof(int), cudaMemcpyHostToDevice));
 
     for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
         int tile_no = tile / tileSize_H;    // - 1;
-        checkCuda(cudaMemcpy(d_row_lim_R + tile_no * (R.cols_ + 1), &(row_lim_R[tile_no][0]),
-                             (R.cols_ + 1) * sizeof(int), cudaMemcpyHostToDevice), __LINE__);
+        gpuErrchk(cudaMemcpy(d_row_lim_R + tile_no * (R.cols_ + 1), &(row_lim_R[tile_no][0]),
+                             (R.cols_ + 1) * sizeof(int), cudaMemcpyHostToDevice));
     }
     for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile += tileSize_W) {
         int tile_no = tile / tileSize_W;    // - 1;
-        checkCuda(cudaMemcpy(d_row_lim_Rt + (tile_no * R.rows_) + tile_no, &(row_lim_Rt[tile_no][0]),
-                             (R.rows_ + 1) * sizeof(int), cudaMemcpyHostToDevice), __LINE__);
+        gpuErrchk(cudaMemcpy(d_row_lim_Rt + (tile_no * R.rows_) + tile_no, &(row_lim_Rt[tile_no][0]),
+                             (R.rows_ + 1) * sizeof(int), cudaMemcpyHostToDevice));
     }
 
     mili = cuda_timerEnd(start, stop, streamT);
 
     //******************PreProcess for TILED binning*******************************
-    checkCuda(cudaEventRecord(start), __LINE__);
+    gpuErrchk(cudaEventRecord(start));
     int** tiled_count = new int* [total_tileInRows];
     int** tiled_count_Rt = new int* [total_tileInCols];
     for (int i = 0; i < total_tileInRows; ++i) {
@@ -279,16 +277,16 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
         tiled_binning(Rt, (tiled_host_rowGroupPtr_Rt[tile_no]), LB_Rt, UB_Rt, tiled_count_Rt[tile_no], row_lim_Rt,
                       tile_no);
     }
-    checkCuda(cudaMalloc((void**) &tiled_rowGroupPtr, total_tileInRows * R.cols_ * sizeof(int)), __LINE__);
-    checkCuda(cudaMalloc((void**) &tiled_rowGroupPtr_Rt, total_tileInCols * R.rows_ * sizeof(int)), __LINE__);
+    gpuErrchk(cudaMalloc((void**) &tiled_rowGroupPtr, total_tileInRows * R.cols_ * sizeof(int)));
+    gpuErrchk(cudaMalloc((void**) &tiled_rowGroupPtr_Rt, total_tileInCols * R.rows_ * sizeof(int)));
 
     for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
         int tile_no = tile / tileSize_H - 1;
         sum = 0;
         for (int i = 0; i < NUM_THRDS; i++) {
             if (tiled_count[tile_no][i] > 0) {
-                checkCuda(cudaMemcpy(tiled_rowGroupPtr + (tile_no * R.cols_) + sum, &(tiled_host_rowGroupPtr[tile_no][i * R.cols_]),
-                                     tiled_count[tile_no][i] * sizeof(int), cudaMemcpyHostToDevice), __LINE__);
+                gpuErrchk(cudaMemcpy(tiled_rowGroupPtr + (tile_no * R.cols_) + sum, &(tiled_host_rowGroupPtr[tile_no][i * R.cols_]),
+                                     tiled_count[tile_no][i] * sizeof(int), cudaMemcpyHostToDevice));
                 sum += tiled_count[tile_no][i];
             }
         }
@@ -299,8 +297,8 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
         sum = 0;
         for (int i = 0; i < NUM_THRDS; i++) {
             if (tiled_count_Rt[tile_no][i] > 0) {
-                checkCuda(cudaMemcpy(tiled_rowGroupPtr_Rt + (tile_no * Rt.cols_) + sum, &(tiled_host_rowGroupPtr_Rt[tile_no][i * R.rows_]),
-                                     tiled_count_Rt[tile_no][i] * sizeof(int), cudaMemcpyHostToDevice), __LINE__);
+                gpuErrchk(cudaMemcpy(tiled_rowGroupPtr_Rt + (tile_no * Rt.cols_) + sum, &(tiled_host_rowGroupPtr_Rt[tile_no][i * R.rows_]),
+                                     tiled_count_Rt[tile_no][i] * sizeof(int), cudaMemcpyHostToDevice));
                 sum += tiled_count_Rt[tile_no][i];
             }
         }
