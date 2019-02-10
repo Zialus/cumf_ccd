@@ -42,7 +42,7 @@ matrix:
         - brew update
         - brew upgrade cmake
         - brew install libomp
-        - source ./scripts/travis_osx
+        - source ./.ci/travis_osx
     - os : osx
       osx_image: xcode8
       env: CUDA=8.0.61
@@ -87,7 +87,7 @@ matrix:
 before_install:
   - wget https://cmake.org/files/v3.13/cmake-3.13.2-Linux-x86_64.sh
   - sudo sh cmake-3.13.2-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
-  - source ./scripts/travis_linux
+  - source ./.ci/travis_linux
 
 install:
   - export CUDA_HOME=/usr/local/cuda
