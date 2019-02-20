@@ -519,15 +519,18 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
 
         GPU_rmse <<<(T.nnz_ + 1023) / 1024, 1024>>>(d_test_row, d_test_col,
                 d_test_val, d_pred_v, d_rmse, d_W, d_H, T.nnz_, k, R.rows_, R.cols_);
-        DTYPE tot_rmse = 0, f_rmse = 0;
+
+        double tot_rmse = 0;
+        double f_rmse = 0;
+
         cudaMemcpy(&(rmse[0]), d_rmse, (T.nnz_ + 1) * sizeof(DTYPE), cudaMemcpyDeviceToHost);
 
 #pragma omp parallel for reduction(+:tot_rmse)
         for (int i = 0; i < T.nnz_; ++i) {
             tot_rmse += rmse[i];
         }
-        f_rmse = (DTYPE) sqrt(tot_rmse / T.nnz_);
-        printf("iter %d time %f RMSE %f\n", oiter, (ACSRTime / 1000), f_rmse);
+        f_rmse = sqrt(tot_rmse / T.nnz_);
+        printf("iter %d time %f \tRMSE %f\n", oiter, (ACSRTime / 1000), f_rmse);
 
     }
 
