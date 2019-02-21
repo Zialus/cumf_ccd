@@ -38,7 +38,7 @@ void make_tile(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
     for (int c = 0; c < R.cols_; ++c) {
         int idx = R.get_csc_col_ptr()[c];
         tiled_bin[0][c] = idx;
-        for (int tile = TS; tile < (R.rows_ + TS - 1); tile += TS) {
+        for (unsigned tile = TS; tile < (R.rows_ + TS - 1); tile += TS) {
             int tile_no = tile / TS; // - 1;
             while (R.get_csc_row_indx()[idx] < tile && idx < R.get_csc_col_ptr()[c + 1]) {
                 idx++;
@@ -53,7 +53,7 @@ void make_tile_odd(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
     for (int c = 0; c < R.cols_; ++c) {
         int idx = R.get_csc_col_ptr()[c];
         tiled_bin[0][c] = idx;
-        for (int tile = TS + (TS / 2); tile < (R.rows_ + (TS + (TS / 2)) - 1); tile += TS) {
+        for (unsigned tile = TS + (TS / 2); tile < (R.rows_ + (TS + (TS / 2)) - 1); tile += TS) {
             int tile_no = tile / TS; // - 1;
             while (R.get_csc_row_indx()[idx] < tile && idx < R.get_csc_col_ptr()[c + 1]) {
                 idx++;

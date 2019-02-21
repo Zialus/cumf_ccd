@@ -99,11 +99,11 @@ public:
     long rows_, cols_, nnz_, max_row_nnz_, max_col_nnz_;
 
     void read_binary_file(long rows, long cols, long nnz,
-                          std::string fname_data, std::string fname_row,
-                          std::string fname_col, std::string fname_csr_row_ptr,
-                          std::string fname_csr_col_indx, std::string fname_csr_val,
-                          std::string fname_csc_col_ptr, std::string fname_csc_row_indx,
-                          std::string fname_csc_val);
+//                          std::string fname_data, std::string fname_row, std::string fname_col,
+                          const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
+                          const std::string& fname_csr_val,
+                          const std::string& fname_csc_col_ptr, const std::string& fname_csc_row_indx,
+                          const std::string& fname_csc_val);
 
     SparseMatrix get_shallow_transpose();
 
@@ -132,7 +132,7 @@ public:
     }
 
 private:
-    void read_compressed(std::string fname_cs_ptr, std::string fname_cs_indx, std::string fname_cs_val,
+    void read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
                          std::shared_ptr<int>& cs_ptr, std::shared_ptr<unsigned int>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
                          long num_elems_in_cs_ptr, long& max_nnz_in_one_dim);
 

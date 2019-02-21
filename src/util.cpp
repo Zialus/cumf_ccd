@@ -101,7 +101,8 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_cscval, sizeof(binary_filename_cscval), "%s/%s", srcdir, buf);
 
-    R.read_binary_file(m, n, nnz, binary_filename_val, binary_filename_row, binary_filename_col,
+    R.read_binary_file(m, n, nnz,
+//                       binary_filename_val, binary_filename_row, binary_filename_col,
                        binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
                        binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
 
@@ -124,10 +125,11 @@ void init_random(MatData& X, long k, long n) {
 
 
 void SparseMatrix::read_binary_file(long rows, long cols, long nnz,
-                                    std::string fname_data, std::string fname_row, std::string fname_col,
-                                    std::string fname_csr_row_ptr, std::string fname_csr_col_indx,
-                                    std::string fname_csr_val, std::string fname_csc_col_ptr,
-                                    std::string fname_csc_row_indx, std::string fname_csc_val) {
+//                                    std::string fname_data, std::string fname_row, std::string fname_col,
+                                    const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
+                                    const std::string& fname_csr_val,
+                                    const std::string& fname_csc_col_ptr, const std::string& fname_csc_row_indx,
+                                    const std::string& fname_csc_val) {
     this->rows_ = rows;
     this->cols_ = cols;
     this->nnz_ = nnz;
@@ -144,11 +146,9 @@ void SparseMatrix::read_binary_file(long rows, long cols, long nnz,
 
 }
 
-void SparseMatrix::read_compressed(std::string fname_cs_ptr,
-                                   std::string fname_cs_indx, std::string fname_cs_val,
-                                   std::shared_ptr<int>& cs_ptr, std::shared_ptr<unsigned int>& cs_indx,
-                                   std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr,
-                                   long& max_nnz_in_one_dim) {
+void SparseMatrix::read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
+                                   std::shared_ptr<int>& cs_ptr, std::shared_ptr<unsigned int>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
+                                   long num_elems_in_cs_ptr, long& max_nnz_in_one_dim) {
 
     cs_ptr = std::shared_ptr<int>(new int[num_elems_in_cs_ptr], std::default_delete<int[]>());
     cs_indx = std::shared_ptr<unsigned int>(new unsigned int[this->nnz_], std::default_delete<unsigned int[]>());
