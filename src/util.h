@@ -71,6 +71,7 @@
 #include <algorithm>
 
 #include <cassert>
+#include <cmath>
 
 #include <omp.h>
 
@@ -90,7 +91,8 @@ using MatData = std::vector<VecData>;
 using VecInt = std::vector<int>;
 using MatInt = std::vector<VecInt>;
 
-void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& options);
+void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param);
+void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param);
 void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data);
 void init_random(MatData& X, long k, long n);
 
@@ -186,6 +188,7 @@ public:
     int tileSizeW = 499999999;
     int tileSizeH = 499999999;
     char data_directory[1024] = "../data/simple";
+    int threads = 16;
 
     void print() {
         std::cout << "k = " << k << '\n';

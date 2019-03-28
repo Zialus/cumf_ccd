@@ -19,3 +19,7 @@ void make_tile_odd(SparseMatrix& R, MatInt& tiled_bin, int TS);
 void tiled_binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB, int* count, MatInt& tiled_bin, int tile_no);
 
 void binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB, int* count);
+
+void golden_compare(MatData W, MatData W_ref, unsigned k, unsigned m);
+
+double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bool ifALS);

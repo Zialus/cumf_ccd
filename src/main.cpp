@@ -60,6 +60,7 @@
  */
 
 #include "util.h"
+#include "utilities.h"
 
 void print_help_and_exit() {
     printf(
@@ -121,26 +122,52 @@ Options parse_cmd_options(int argc, char** argv) {
 
 void run_ccdr1(Options& param, const char* data_directory) {
     SparseMatrix R;
-    MatData W;
-    MatData H;
     TestData T;
 
-    printf("Loading from binary file...\n");
+    std::cout << "------------------------------------------------------" << std::endl;
+    std::cout << "[info] Loading R matrix..." << std::endl;
     auto t0 = std::chrono::high_resolution_clock::now();
     load_from_binary(data_directory, R, T);
     auto t1 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT = t1 - t0;
-    printf("Total seconds: %.3f \n", deltaT.count());
+    std::cout << "[info] Loading rating data time: " << deltaT.count() << "s.\n";
+    std::cout << "------------------------------------------------------" << std::endl;
 
+    MatData W;
+    MatData H;
     init_random(W, param.k, R.rows_);
     init_random(H, param.k, R.cols_);
 
-    printf("\nComputing with CCD!!\n");
+    MatData W_ref;
+    MatData H_ref;
+    init_random(W_ref, param.k, R.rows_);
+    init_random(H_ref, param.k, R.cols_);
+
+    printf("Computing with CCD!!\n");
     auto t2 = std::chrono::high_resolution_clock::now();
     ccdr1(R, W, H, T, param);
     auto t3 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT23 = t3 - t2;
     printf("\nTotal seconds: %.3f for F= %d\n\n", deltaT23.count(), param.k);
+
+
+    std::cout << "------------------------------------------------------" << std::endl;
+    auto t13 = std::chrono::high_resolution_clock::now();
+    cdmf_ref(R, W_ref, H_ref, T, param);
+    auto t14 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT13_14 = t14 - t13;
+    std::cout << "[info] OMP Predict Time: " << deltaT13_14.count() << " s.\n";
+
+
+    std::cout << "------------------------------------------------------" << std::endl;
+    std::cout << "[info] validate the results." << std::endl;
+    auto t11 = std::chrono::high_resolution_clock::now();
+    golden_compare(W, W_ref, param.k, R.rows_);
+    golden_compare(H, H_ref, param.k, R.cols_);
+    auto t12 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT11_12 = t12 - t11;
+    std::cout << "[info] Validate Time: " << deltaT11_12.count() << " s.\n";
+
 }
 
 int main(int argc, char* argv[]) {
