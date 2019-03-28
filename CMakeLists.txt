@@ -13,14 +13,14 @@ find_package(OpenMP REQUIRED)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -rdynamic")
 
-# There seems to be a bug with CMake, which makes him not add OpenMP flags to the nvcc Xcompiler option
+# There seems to be a bug with CMake, which makes it not add OpenMP flags to the nvcc Xcompiler option
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 # Add debugging to CUDA NVCC flags for NVidia's NSight tools.
 set(CUDA_NVCC_FLAGS_DEBUG "${CUDA_NVCC_FLAGS_DEBUG} -G")
 
 set(EXTRA_NVCC_FLAGS -arch=sm_35 -Xptxas -dlcm=ca --std=c++11)
-#set(EXTRA_NVCC_FLAGS -arch=sm_35 -Xptxas -dlcm=ca --std=c++11 -lineinfo)
+#set(EXTRA_NVCC_FLAGS -arch=sm_35 -Xptxas -dlcm=ca --std=c++11 -lineinfo --ptxas-options=-v --maxrregcount 255)
 
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${EXTRA_NVCC_FLAGS})
 
