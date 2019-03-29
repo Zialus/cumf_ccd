@@ -109,11 +109,11 @@ public:
 
     SparseMatrix get_shallow_transpose();
 
-    int* get_csc_col_ptr() const {
+    unsigned* get_csc_col_ptr() const {
         return csc_col_ptr_.get();
     }
 
-    unsigned int* get_csc_row_indx() const {
+    unsigned* get_csc_row_indx() const {
         return csc_row_indx_.get();
     }
 
@@ -121,11 +121,11 @@ public:
         return csc_val_.get();
     }
 
-    unsigned int* get_csr_col_indx() const {
+    unsigned* get_csr_col_indx() const {
         return csr_col_indx_.get();
     }
 
-    int* get_csr_row_ptr() const {
+    unsigned* get_csr_row_ptr() const {
         return csr_row_ptr_.get();
     }
 
@@ -135,12 +135,12 @@ public:
 
 private:
     void read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
-                         std::shared_ptr<int>& cs_ptr, std::shared_ptr<unsigned int>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
+                         std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
                          long num_elems_in_cs_ptr, long& max_nnz_in_one_dim);
 
-    std::shared_ptr<int> csc_col_ptr_, csr_row_ptr_, col_nnz_, row_nnz_;
+    std::shared_ptr<unsigned> csc_col_ptr_, csr_row_ptr_, col_nnz_, row_nnz_;
     std::shared_ptr<DTYPE> csr_val_, csc_val_;
-    std::shared_ptr<unsigned int> csc_row_indx_, csr_col_indx_;
+    std::shared_ptr<unsigned> csc_row_indx_, csr_col_indx_;
 };
 
 class TestData {
@@ -152,8 +152,8 @@ public:
         this->cols_ = cols;
         this->nnz_ = nnz;
 
-        test_row = std::unique_ptr<int[]>(new int[nnz]);
-        test_col = std::unique_ptr<int[]>(new int[nnz]);
+        test_row = std::unique_ptr<unsigned[]>(new unsigned[nnz]);
+        test_col = std::unique_ptr<unsigned[]>(new unsigned[nnz]);
         test_val = std::unique_ptr<DTYPE[]>(new DTYPE[nnz]);
 
         std::ifstream fp(filename);
@@ -162,11 +162,11 @@ public:
         }
     }
 
-    int* getTestCol() const {
+    unsigned* getTestCol() const {
         return test_col.get();
     }
 
-    int* getTestRow() const {
+    unsigned* getTestRow() const {
         return test_row.get();
     }
 
@@ -175,13 +175,13 @@ public:
     }
 
 private:
-    std::unique_ptr<int[]> test_row, test_col;
+    std::unique_ptr<unsigned[]> test_row, test_col;
     std::unique_ptr<DTYPE[]> test_val;
 };
 
 class Options {
 public:
-    int k = 10;
+    unsigned k = 10;
     int maxiter = 5;
     int maxinneriter = 1;
     DTYPE lambda = .05;

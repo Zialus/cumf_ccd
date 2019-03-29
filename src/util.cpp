@@ -147,18 +147,18 @@ void SparseMatrix::read_binary_file(long rows, long cols, long nnz,
 }
 
 void SparseMatrix::read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
-                                   std::shared_ptr<int>& cs_ptr, std::shared_ptr<unsigned int>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
+                                   std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
                                    long num_elems_in_cs_ptr, long& max_nnz_in_one_dim) {
 
-    cs_ptr = std::shared_ptr<int>(new int[num_elems_in_cs_ptr], std::default_delete<int[]>());
-    cs_indx = std::shared_ptr<unsigned int>(new unsigned int[this->nnz_], std::default_delete<unsigned int[]>());
+    cs_ptr = std::shared_ptr<unsigned>(new unsigned[num_elems_in_cs_ptr], std::default_delete<unsigned[]>());
+    cs_indx = std::shared_ptr<unsigned>(new unsigned[this->nnz_], std::default_delete<unsigned[]>());
     cs_val = std::shared_ptr<DTYPE>(new DTYPE[this->nnz_], std::default_delete<DTYPE[]>());
 
     std::ifstream f_indx(fname_cs_indx, std::ios::binary);
     std::ifstream f_val(fname_cs_val, std::ios::binary);
 
     for (long i = 0; i < this->nnz_; i++) {
-        f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned int));
+        f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned));
         f_val.read((char*) &cs_val.get()[i], sizeof(float));
     }
 

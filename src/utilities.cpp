@@ -17,7 +17,7 @@ void copy_R(SparseMatrix& R, DTYPE* copy_R) {
     auto val_ptr = R.get_csr_val();
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
-        for (int idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
+        for (unsigned idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
             copy_R[idx] = val_ptr[idx];
         }
     }
@@ -27,7 +27,7 @@ void copy_R1(DTYPE* copy_R, SparseMatrix& R) {
     auto val_ptr = R.get_csr_val();
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
-        for (int idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
+        for (unsigned idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
             val_ptr[idx] = copy_R[idx];
         }
     }
@@ -36,7 +36,7 @@ void copy_R1(DTYPE* copy_R, SparseMatrix& R) {
 void make_tile(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
-        int idx = R.get_csc_col_ptr()[c];
+        unsigned idx = R.get_csc_col_ptr()[c];
         tiled_bin[0][c] = idx;
         for (unsigned tile = TS; tile < (R.rows_ + TS - 1); tile += TS) {
             int tile_no = tile / TS; // - 1;
@@ -51,7 +51,7 @@ void make_tile(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
 void make_tile_odd(SparseMatrix& R, MatInt& tiled_bin, const int TS) {
 #pragma omp parallel for
     for (int c = 0; c < R.cols_; ++c) {
-        int idx = R.get_csc_col_ptr()[c];
+        unsigned idx = R.get_csc_col_ptr()[c];
         tiled_bin[0][c] = idx;
         for (unsigned tile = TS + (TS / 2); tile < (R.rows_ + (TS + (TS / 2)) - 1); tile += TS) {
             int tile_no = tile / TS; // - 1;
