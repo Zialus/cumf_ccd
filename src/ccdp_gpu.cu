@@ -533,6 +533,14 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
 
     }
 
+    //Copy Matrices W and H back to host
+    for (int t = 0; t < k; ++t) {
+        cudaMemcpy(&(W[t][0]), d_W + t * R.rows_, R.rows_ * sizeof(DTYPE), cudaMemcpyDeviceToHost);
+    }
+    for (int t = 0; t < k; ++t) {
+        cudaMemcpy(&(H[t][0]), d_H + t * R.cols_, R.cols_ * sizeof(DTYPE), cudaMemcpyDeviceToHost);
+    }
+
     cudaFree(d_u);
     cudaFree(d_v);
     cudaFree(d_W);
