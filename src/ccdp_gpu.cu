@@ -118,8 +118,7 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
     unsigned* d_R_rowIdx;
     unsigned* d_R_colIdx;
 
-    DTYPE* pred_v = (DTYPE*) malloc(T.nnz_ * sizeof(DTYPE));
-    DTYPE* rmse = (DTYPE*) malloc(T.nnz_ * sizeof(DTYPE));
+    DTYPE* rmse = (DTYPE*) malloc((T.nnz_ + 1) * sizeof(DTYPE));
 
     //omp_set_num_threads(param.threads);
 
