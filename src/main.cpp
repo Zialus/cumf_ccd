@@ -148,8 +148,7 @@ void run_ccdr1(Options& param, const char* data_directory) {
     ccdr1(R, W, H, T, param);
     auto t3 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT23 = t3 - t2;
-    printf("\nTotal seconds: %.3f for F= %d\n\n", deltaT23.count(), param.k);
-
+    std::cout << "[info] CUDA Predict Time: " << deltaT23.count() << " s.\n";
 
     std::cout << "------------------------------------------------------" << std::endl;
     auto t13 = std::chrono::high_resolution_clock::now();

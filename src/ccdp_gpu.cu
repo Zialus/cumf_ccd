@@ -528,8 +528,9 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
         for (int i = 0; i < T.nnz_; ++i) {
             tot_rmse += rmse[i];
         }
+
         f_rmse = sqrt(tot_rmse / T.nnz_);
-        printf("iter %d time %f \tRMSE %f\n", oiter, (ACSRTime / 1000), f_rmse);
+        printf("[-INFO-] iteration num %d \t time %f \t RMSE=%f\n", oiter, (ACSRTime / 1000), f_rmse);
 
     }
 

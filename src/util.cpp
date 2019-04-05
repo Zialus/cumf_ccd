@@ -106,10 +106,19 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
                        binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
                        binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
 
+
+    auto t0 = std::chrono::high_resolution_clock::now();
+
     if (fscanf(fp, "%ld %1023s", &nnz, buf) != EOF) {
         snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
         data.read(m, n, nnz, filename);
     }
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t1 - t0;
+    std::cout << "[info] LOL TIMER: " << deltaT.count() << "s.\n";
+
+
     fclose(fp);
 }
 

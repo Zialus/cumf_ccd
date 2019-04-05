@@ -54,9 +54,10 @@ void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& par
     // Create transpose view of R
     SparseMatrix Rt;
     Rt = R.get_shallow_transpose();
+
     // H is a zero matrix now.
     for (unsigned t = 0; t < param.k; ++t) {
-        for (unsigned c = 0; c < R.cols_; ++c) {
+        for (long c = 0; c < R.cols_; ++c) {
             H[t][c] = 0;
         }
     }
@@ -107,7 +108,6 @@ void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& par
                     u[c] = RankOneUpdate(Rt, c, v, lambda * (Rt.get_csc_col_ptr()[c + 1] - Rt.get_csc_col_ptr()[c]));
                 }
                 t_rank_one_update += omp_get_wtime() - start;
-
             }
 
             // Update R and Rt
