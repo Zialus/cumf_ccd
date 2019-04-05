@@ -66,6 +66,11 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     snprintf(filename, sizeof(filename), "%s/meta_modified_all", srcdir);
     FILE* fp = fopen(filename, "r");
 
+    if (fp == nullptr) {
+        printf("Can't open meta input file.\n");
+        exit(EXIT_FAILURE);
+    }
+
     long m;
     long n;
     long nnz;
@@ -101,21 +106,33 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_cscval, sizeof(binary_filename_cscval), "%s/%s", srcdir, buf);
 
+
+    auto t0 = std::chrono::high_resolution_clock::now();
+    R.initialize_matrix(m, n, nnz);
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> deltaT = t1 - t0;
+    std::cout << "[info] LOL TIMER: " << deltaT.count() << "s.\n";
+
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+
     R.read_binary_file(m, n, nnz,
 //                       binary_filename_val, binary_filename_row, binary_filename_col,
                        binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
                        binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
+    auto t3 = std::chrono::high_resolution_clock::now();
+    deltaT = t3 - t2;
+    std::cout << "[info] LOL TIMER: " << deltaT.count() << "s.\n";
 
-
-    auto t0 = std::chrono::high_resolution_clock::now();
+    auto t4 = std::chrono::high_resolution_clock::now();
 
     if (fscanf(fp, "%ld %1023s", &nnz, buf) != EOF) {
         snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
         data.read(m, n, nnz, filename);
     }
 
-    auto t1 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> deltaT = t1 - t0;
+    auto t5 = std::chrono::high_resolution_clock::now();
+    deltaT = t5 - t4;
     std::cout << "[info] LOL TIMER: " << deltaT.count() << "s.\n";
 
 
@@ -133,16 +150,31 @@ void init_random(MatData& X, long k, long n) {
 }
 
 
+void SparseMatrix::initialize_matrix(long rows, long cols, long nnz) {
+    this->rows_ = rows;
+    this->cols_ = cols;
+    this->nnz_ = nnz;
+
+    /// alloc csr
+    this->alloc_space(this->csr_row_ptr_, this->csr_col_indx_, this->csr_val_, rows + 1);
+
+    /// alloc csc
+    this->alloc_space(this->csc_col_ptr_, this->csc_row_indx_, this->csc_val_, cols + 1);
+}
+
+void SparseMatrix::alloc_space(std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx,
+                               std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr) {
+    cs_ptr = std::shared_ptr<unsigned>(new unsigned[num_elems_in_cs_ptr], std::default_delete<unsigned[]>());
+    cs_indx = std::shared_ptr<unsigned>(new unsigned[this->nnz_], std::default_delete<unsigned[]>());
+    cs_val = std::shared_ptr<DTYPE>(new DTYPE[this->nnz_], std::default_delete<DTYPE[]>());
+}
+
 void SparseMatrix::read_binary_file(long rows, long cols, long nnz,
 //                                    std::string fname_data, std::string fname_row, std::string fname_col,
                                     const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
                                     const std::string& fname_csr_val,
                                     const std::string& fname_csc_col_ptr, const std::string& fname_csc_row_indx,
                                     const std::string& fname_csc_val) {
-    this->rows_ = rows;
-    this->cols_ = cols;
-    this->nnz_ = nnz;
-
     /// read csr
     this->read_compressed(fname_csr_row_ptr, fname_csr_col_indx, fname_csr_val,
                           this->csr_row_ptr_, this->csr_col_indx_, this->csr_val_, rows + 1,
@@ -152,17 +184,11 @@ void SparseMatrix::read_binary_file(long rows, long cols, long nnz,
     this->read_compressed(fname_csc_col_ptr, fname_csc_row_indx, fname_csc_val,
                           this->csc_col_ptr_, this->csc_row_indx_, this->csc_val_, cols + 1,
                           this->max_col_nnz_);
-
 }
 
 void SparseMatrix::read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
                                    std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
                                    long num_elems_in_cs_ptr, long& max_nnz_in_one_dim) {
-
-    cs_ptr = std::shared_ptr<unsigned>(new unsigned[num_elems_in_cs_ptr], std::default_delete<unsigned[]>());
-    cs_indx = std::shared_ptr<unsigned>(new unsigned[this->nnz_], std::default_delete<unsigned[]>());
-    cs_val = std::shared_ptr<DTYPE>(new DTYPE[this->nnz_], std::default_delete<DTYPE[]>());
-
     std::ifstream f_indx(fname_cs_indx, std::ios::binary);
     std::ifstream f_val(fname_cs_val, std::ios::binary);
 

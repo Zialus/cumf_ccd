@@ -107,6 +107,9 @@ public:
                           const std::string& fname_csc_col_ptr, const std::string& fname_csc_row_indx,
                           const std::string& fname_csc_val);
 
+    void initialize_matrix(long rows, long cols, long nnz);
+
+
     SparseMatrix get_shallow_transpose();
 
     unsigned* get_csc_col_ptr() const {
@@ -137,6 +140,9 @@ private:
     void read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
                          std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
                          long num_elems_in_cs_ptr, long& max_nnz_in_one_dim);
+
+    void alloc_space(std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx,
+                     std::shared_ptr<DTYPE>& cs_val, long num_elems_in_cs_ptr);
 
     std::shared_ptr<unsigned> csc_col_ptr_, csr_row_ptr_, col_nnz_, row_nnz_;
     std::shared_ptr<DTYPE> csr_val_, csc_val_;
