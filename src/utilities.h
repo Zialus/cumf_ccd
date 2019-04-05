@@ -23,3 +23,9 @@ void binning(SparseMatrix& R, int* host_rowGroupPtr, int* LB, int* UB, int* coun
 void golden_compare(MatData W, MatData W_ref, unsigned k, unsigned m);
 
 double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bool ifALS);
+
+double dot(const MatData& W, long i, const MatData& H, long j, bool ifALS);
+
+float dot(const VecData& a, const VecData& b);
+
+double calrmse(TestData& T, const MatData& W, const MatData& H, bool ifALS, bool iscol = false);

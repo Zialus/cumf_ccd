@@ -130,6 +130,7 @@ void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& par
 
         double start = omp_get_wtime();
         double rmse = calculate_rmse_directly(W, H, T, param.k, false);
+//        double rmse = calrmse(T, W, H, false, true);
 
         double end = omp_get_wtime();
         double rmse_timer = end - start;

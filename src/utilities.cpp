@@ -173,7 +173,7 @@ double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bo
         } else {
 //#pragma omp parallel for  reduction(+:pred_v)
             for (int t = 0; t < rank; t++) {
-                pred_v += W[t][i] * H[t][j];
+                pred_v += W[t][i-1] * H[t][j-1];
             }
         }
         double tmp = (pred_v - v) * (pred_v - v);
@@ -192,4 +192,44 @@ double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bo
     rmse = sqrt(rmse / num_insts);
 //    printf("[INFO] Test RMSE = %lf\n", rmse);
     return rmse;
+}
+
+double dot(const MatData& W, const long i, const MatData& H, const long j, bool ifALS) {
+    double ret = 0;
+    if (ifALS) {
+        long k = W[0].size();
+        for (int t = 0; t < k; ++t) {
+            ret += W[i][t] * H[j][t];
+        }
+    } else {
+        long k = W.size();
+        for (int t = 0; t < k; ++t) {
+            ret += W[t][i] * H[t][j];
+        }
+    }
+    return ret;
+}
+
+float dot(const VecData& a, const VecData& b) {
+    float ret = 0;
+#pragma omp parallel for
+    for (long i = a.size() - 1; i >= 0; --i) {
+        ret += a[i] * b[i];
+    }
+    return ret;
+}
+
+double calrmse(TestData& T, const MatData& W, const MatData& H, bool ifALS, bool iscol) {
+    long nnz = T.nnz_;
+    double rmse = 0;
+    for (long idx = 0; idx < nnz; ++idx) {
+        double err = -T.getTestVal()[idx];
+        if (iscol) {
+            err += dot(W, T.getTestRow()[idx], H, T.getTestCol()[idx], ifALS);
+        } else {
+            err += dot(W[T.getTestRow()[idx]], H[T.getTestCol()[idx]]);
+        }
+        rmse += err * err;
+    }
+    return sqrt(rmse / nnz);
 }
