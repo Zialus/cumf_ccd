@@ -17,34 +17,6 @@ inline DTYPE RankOneUpdate(const SparseMatrix& R, const long j, const VecData& u
     return newvj;
 }
 
-inline DTYPE UpdateRating(SparseMatrix& R, const VecData& Wt, const VecData& Ht, const VecData& oldWt, const VecData& oldHt) {
-    DTYPE loss = 0;
-#pragma omp parallel for  schedule(kind) reduction(+:loss)
-    for (long c = 0; c < R.cols_; ++c) {
-        DTYPE Htc = Ht[c], oldHtc = oldHt[c], loss_inner = 0;
-        for (unsigned idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
-            R.get_csc_val()[idx] -= Wt[R.get_csc_row_indx()[idx]] * Htc - oldWt[R.get_csc_row_indx()[idx]] * oldHtc;
-            loss_inner += R.get_csc_val()[idx] * R.get_csc_val()[idx];
-        }
-        loss += loss_inner;
-    }
-    return loss;
-}
-
-inline DTYPE UpdateRating(SparseMatrix& R, const VecData& Wt2, const VecData& Ht2) {
-    DTYPE loss = 0;
-#pragma omp parallel for schedule(kind) reduction(+:loss)
-    for (long c = 0; c < R.cols_; ++c) {
-        DTYPE Htc = Ht2[2 * c], oldHtc = Ht2[2 * c + 1], loss_inner = 0;
-        for (unsigned idx = R.get_csc_col_ptr()[c]; idx < R.get_csc_col_ptr()[c + 1]; ++idx) {
-            R.get_csc_val()[idx] -= Wt2[2 * R.get_csc_row_indx()[idx]] * Htc - Wt2[2 * R.get_csc_row_indx()[idx] + 1] * oldHtc;
-            loss_inner += R.get_csc_val()[idx] * R.get_csc_val()[idx];
-        }
-        loss += loss_inner;
-    }
-    return loss;
-}
-
 inline DTYPE UpdateRating(SparseMatrix& R, const VecData& Wt, const VecData& Ht, bool add) {
     DTYPE loss = 0;
     if (add) {
