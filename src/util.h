@@ -93,7 +93,7 @@ using MatInt = std::vector<VecInt>;
 
 void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param);
 void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param);
-void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data);
+void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& T);
 void init_random(MatData& X, long k, long n);
 
 class SparseMatrix {
@@ -166,6 +166,32 @@ public:
         for (long idx = 0; idx < nnz; ++idx) {
             fp >> test_row[idx] >> test_col[idx] >> test_val[idx];
         }
+    }
+
+
+    void read_binary_file(long rows, long cols, long nnz,
+                          const std::string& fname_data,
+                          const std::string& fname_row,
+                          const std::string& fname_col) {
+        this->rows_ = rows;
+        this->cols_ = cols;
+        this->nnz_ = nnz;
+
+        test_row = std::unique_ptr<unsigned[]>(new unsigned[nnz]);
+        test_col = std::unique_ptr<unsigned[]>(new unsigned[nnz]);
+        test_val = std::unique_ptr<DTYPE[]>(new DTYPE[nnz]);
+
+        FILE* f_val = fopen(fname_data.c_str(), "rb");
+        FILE* f_row = fopen(fname_row.c_str(), "rb");
+        FILE* f_col = fopen(fname_col.c_str(), "rb");
+
+        fread(&test_val.get()[0], sizeof(DTYPE) * this->nnz_, 1, f_val);
+        fread(&test_row.get()[0], sizeof(unsigned) * this->nnz_, 1, f_row);
+        fread(&test_col.get()[0], sizeof(unsigned) * this->nnz_, 1, f_col);
+
+        fclose(f_val);
+        fclose(f_row);
+        fclose(f_col);
     }
 
     unsigned* getTestCol() const {

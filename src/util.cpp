@@ -60,8 +60,9 @@
  */
 
 #include "util.h"
+#include <cstdio>
 
-void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
+void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& T) {
     char filename[1024];
     snprintf(filename, sizeof(filename), "%s/meta_modified_all", srcdir);
     FILE* fp = fopen(filename, "r");
@@ -87,6 +88,10 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     char binary_filename_rowidx[1024];
     char binary_filename_cscval[1024];
 
+    char binary_filename_val_test[1024];
+    char binary_filename_row_test[1024];
+    char binary_filename_col_test[1024];
+
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_val, sizeof(binary_filename_val), "%s/%s", srcdir, buf);
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
@@ -106,12 +111,19 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
     CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
     snprintf(binary_filename_cscval, sizeof(binary_filename_cscval), "%s/%s", srcdir, buf);
 
+//    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_val_test, sizeof(binary_filename_val_test), "%s/R_test_coo.data.bin", srcdir);
+//    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_row_test, sizeof(binary_filename_row_test), "%s/R_test_coo.row.bin", srcdir);
+//    CHECK_FSCAN(fscanf(fp, "%1023s", buf), 1);
+    snprintf(binary_filename_col_test, sizeof(binary_filename_col_test), "%s/R_test_coo.col.bin", srcdir);
+
 
     auto t0 = std::chrono::high_resolution_clock::now();
     R.initialize_matrix(m, n, nnz);
     auto t1 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> deltaT = t1 - t0;
-    std::cout << "[info] LOL TIMER: " << deltaT.count() << "s.\n";
+    std::cout << "[info] Alloc TIMER: " << deltaT.count() << "s.\n";
 
 
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -122,18 +134,19 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& data) {
                        binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
     auto t3 = std::chrono::high_resolution_clock::now();
     deltaT = t3 - t2;
-    std::cout << "[info] LOL TIMER: " << deltaT.count() << "s.\n";
+    std::cout << "[info] Train TIMER: " << deltaT.count() << "s.\n";
 
     auto t4 = std::chrono::high_resolution_clock::now();
 
     if (fscanf(fp, "%ld %1023s", &nnz, buf) != EOF) {
         snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
-        data.read(m, n, nnz, filename);
+//        T.read(m, n, nnz, filename);
+        T.read_binary_file(m, n, nnz, binary_filename_val_test, binary_filename_row_test, binary_filename_col_test);
     }
 
     auto t5 = std::chrono::high_resolution_clock::now();
     deltaT = t5 - t4;
-    std::cout << "[info] LOL TIMER: " << deltaT.count() << "s.\n";
+    std::cout << "[info] Tests TIMER: " << deltaT.count() << "s.\n";
 
 
     fclose(fp);
@@ -189,13 +202,21 @@ void SparseMatrix::read_binary_file(long rows, long cols, long nnz,
 void SparseMatrix::read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
                                    std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
                                    long num_elems_in_cs_ptr, long& max_nnz_in_one_dim) {
-    std::ifstream f_indx(fname_cs_indx, std::ios::binary);
-    std::ifstream f_val(fname_cs_val, std::ios::binary);
+//    std::ifstream f_indx(fname_cs_indx, std::ios::binary);
+//    std::ifstream f_val(fname_cs_val, std::ios::binary);
 
-    for (long i = 0; i < this->nnz_; i++) {
-        f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned));
-        f_val.read((char*) &cs_val.get()[i], sizeof(float));
-    }
+//    for (long i = 0; i < this->nnz_; i++) {
+//        f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned));
+//        f_val.read((char*) &cs_val.get()[i], sizeof(float));
+//    }
+
+
+    FILE* f_indx = fopen(fname_cs_indx.c_str(), "rb");
+    FILE* f_val = fopen(fname_cs_val.c_str(), "rb");
+
+    fread(&cs_indx.get()[0], sizeof(unsigned) * this->nnz_, 1, f_indx);
+    fread(&cs_val.get()[0], sizeof(float) * this->nnz_, 1, f_val);
+
 
     std::ifstream f_ptr(fname_cs_ptr, std::ios::binary);
     max_nnz_in_one_dim = std::numeric_limits<long>::min();
@@ -208,6 +229,12 @@ void SparseMatrix::read_compressed(const std::string& fname_cs_ptr, const std::s
 
         if (i > 0) { max_nnz_in_one_dim = std::max<long>(max_nnz_in_one_dim, cur - prev); }
     }
+
+
+//    fread(&cs_ptr.get()[0], sizeof(unsigned) * num_elems_in_cs_ptr, 1, f_val);
+
+    fclose(f_indx);
+    fclose(f_val);
 }
 
 SparseMatrix SparseMatrix::get_shallow_transpose() {

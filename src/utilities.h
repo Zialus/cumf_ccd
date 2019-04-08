@@ -29,3 +29,5 @@ double dot(const MatData& W, long i, const MatData& H, long j, bool ifALS);
 float dot(const VecData& a, const VecData& b);
 
 double calrmse(TestData& T, const MatData& W, const MatData& H, bool ifALS, bool iscol = false);
+
+void print_matrix(MatData M, unsigned k, unsigned n);

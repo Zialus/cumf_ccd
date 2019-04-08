@@ -167,6 +167,14 @@ void run_ccdr1(Options& param, const char* data_directory) {
     std::chrono::duration<double> deltaT11_12 = t12 - t11;
     std::cout << "[info] Validate Time: " << deltaT11_12.count() << " s.\n";
 
+//    print_matrix(W, param.k, R.rows_);
+//    printf("\n");
+//    print_matrix(H, param.k, R.cols_);
+//    printf("\n");
+//    print_matrix(W_ref, param.k, R.rows_);
+//    printf("\n");
+//    print_matrix(H_ref, param.k, R.cols_);
+
 }
 
 int main(int argc, char* argv[]) {

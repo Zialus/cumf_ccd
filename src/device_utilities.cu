@@ -46,7 +46,7 @@ __global__ void GPU_rmse(int const* __restrict__ test_row, int const* __restrict
         for (int t = 0; t < k; t++) {
             int i = test_row[c];
             int j = test_col[c];
-            pred_v[c] += W[t * rows + (i - 1)] * H[t * cols + (j - 1)]; //W[i-1][t] * H[j-1][t];
+            pred_v[c] += W[t * rows + i] * H[t * cols + j]; //W[i][t] * H[j][t];
         }
         rmse[c] = (pred_v[c] - test_val[c]) * (pred_v[c] - test_val[c]);
     }

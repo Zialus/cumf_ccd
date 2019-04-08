@@ -84,6 +84,12 @@ void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& par
 #pragma omp parallel for
             for (long i = 0; i < R.cols_; ++i) { v[i] = Ht[i]; }
 
+
+//            print_matrix(W, param.k, R.rows_);
+//            printf("\n");
+//            print_matrix(H, param.k, R.cols_);
+
+
             // Create Rhat = R - Wt Ht^T
             if (oiter > 1) {
                 UpdateRating(R, Wt, Ht, true);
@@ -129,8 +135,8 @@ void cdmf_ref(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& par
         t_update_ratings_acc += t_update_ratings;
 
         double start = omp_get_wtime();
-        double rmse = calculate_rmse_directly(W, H, T, param.k, false);
-//        double rmse = calrmse(T, W, H, false, true);
+//        double rmse = calculate_rmse_directly(W, H, T, param.k, false);
+        double rmse = calrmse(T, W, H, false, true);
 
         double end = omp_get_wtime();
         double rmse_timer = end - start;

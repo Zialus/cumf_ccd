@@ -173,7 +173,7 @@ double calculate_rmse_directly(MatData& W, MatData& H, TestData& T, int rank, bo
         } else {
 //#pragma omp parallel for  reduction(+:pred_v)
             for (int t = 0; t < rank; t++) {
-                pred_v += W[t][i-1] * H[t][j-1];
+                pred_v += W[t][i] * H[t][j];
             }
         }
         double tmp = (pred_v - v) * (pred_v - v);
@@ -232,4 +232,14 @@ double calrmse(TestData& T, const MatData& W, const MatData& H, bool ifALS, bool
         rmse += err * err;
     }
     return sqrt(rmse / nnz);
+}
+
+void print_matrix(MatData M, unsigned k, unsigned n) {
+    printf("-----------------------------------------\n");
+    for (unsigned i = 0; i < n; ++i) {
+        for (unsigned j = 0; j < k; ++j) {
+            printf("|%f", M[j][i]);
+        }
+        printf("\n-----------------------------------------\n");
+    }
 }
