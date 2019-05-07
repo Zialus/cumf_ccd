@@ -66,6 +66,7 @@
 #include <device_launch_parameters.h>
 
 #include "common.h"
+#include "cuda_common.h"
 
 template<unsigned POWER, unsigned Nth_POWER>
 __global__ void updateR_gen(int const* __restrict__ R_colPtr,
@@ -102,8 +103,8 @@ __global__ void updateR_gen(int const* __restrict__ R_colPtr,
             }
 #pragma unroll Nth_POWER
             for (unsigned i = (POWER) >> 1; i >= 1; i = i >> 1) {
-                g += __shfl_down(g, i);
-                h += __shfl_down(h, i);
+                g += shfl_down(g, i);
+                h += shfl_down(h, i);
             }
             if (laneId == 0) {
                 h += lambda * (nnz_row);
@@ -151,17 +152,17 @@ __global__ void updateR_7(int const* __restrict__ R_colPtr,
                 h += ul_new * ul_new;
             }
 
-            g += __shfl_down(g, 16);
-            g += __shfl_down(g, 8);
-            g += __shfl_down(g, 4);
-            g += __shfl_down(g, 2);
-            g += __shfl_down(g, 1);
+            g += shfl_down(g, 16);
+            g += shfl_down(g, 8);
+            g += shfl_down(g, 4);
+            g += shfl_down(g, 2);
+            g += shfl_down(g, 1);
 
-            h += __shfl_down(h, 16);
-            h += __shfl_down(h, 8);
-            h += __shfl_down(h, 4);
-            h += __shfl_down(h, 2);
-            h += __shfl_down(h, 1);
+            h += shfl_down(h, 16);
+            h += shfl_down(h, 8);
+            h += shfl_down(h, 4);
+            h += shfl_down(h, 2);
+            h += shfl_down(h, 1);
 
             if ((tId & 31) == 0) {
                 SD[tId >> 5] = g;
