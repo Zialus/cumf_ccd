@@ -1,6 +1,7 @@
 #ifndef CUDA_COMMON_H
 #define CUDA_COMMON_H
 
+#include <cuda.h>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 

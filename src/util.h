@@ -100,9 +100,7 @@ class SparseMatrix {
 public:
     long rows_, cols_, nnz_, max_row_nnz_, max_col_nnz_;
 
-    void read_binary_file(long rows, long cols, long nnz,
-//                          std::string fname_data, std::string fname_row, std::string fname_col,
-                          const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
+    void read_binary_file(const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
                           const std::string& fname_csr_val,
                           const std::string& fname_csc_col_ptr, const std::string& fname_csc_row_indx,
                           const std::string& fname_csc_val);

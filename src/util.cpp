@@ -128,9 +128,7 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& T) {
 
     auto t2 = std::chrono::high_resolution_clock::now();
 
-    R.read_binary_file(m, n, nnz,
-//                       binary_filename_val, binary_filename_row, binary_filename_col,
-                       binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
+    R.read_binary_file(binary_filename_rowptr, binary_filename_colidx, binary_filename_csrval,
                        binary_filename_colptr, binary_filename_rowidx, binary_filename_cscval);
     auto t3 = std::chrono::high_resolution_clock::now();
     deltaT = t3 - t2;
@@ -140,7 +138,6 @@ void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& T) {
 
     if (fscanf(fp, "%ld %1023s", &nnz, buf) != EOF) {
         snprintf(filename, sizeof(filename), "%s/%s", srcdir, buf);
-//        T.read(m, n, nnz, filename);
         T.read_binary_file(m, n, nnz, binary_filename_val_test, binary_filename_row_test, binary_filename_col_test);
     }
 
@@ -182,34 +179,24 @@ void SparseMatrix::alloc_space(std::shared_ptr<unsigned>& cs_ptr, std::shared_pt
     cs_val = std::shared_ptr<DTYPE>(new DTYPE[this->nnz_], std::default_delete<DTYPE[]>());
 }
 
-void SparseMatrix::read_binary_file(long rows, long cols, long nnz,
-//                                    std::string fname_data, std::string fname_row, std::string fname_col,
-                                    const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
+void SparseMatrix::read_binary_file(const std::string& fname_csr_row_ptr, const std::string& fname_csr_col_indx,
                                     const std::string& fname_csr_val,
                                     const std::string& fname_csc_col_ptr, const std::string& fname_csc_row_indx,
                                     const std::string& fname_csc_val) {
     /// read csr
     this->read_compressed(fname_csr_row_ptr, fname_csr_col_indx, fname_csr_val,
-                          this->csr_row_ptr_, this->csr_col_indx_, this->csr_val_, rows + 1,
+                          this->csr_row_ptr_, this->csr_col_indx_, this->csr_val_, this->rows_ + 1,
                           this->max_row_nnz_);
 
     /// read csc
     this->read_compressed(fname_csc_col_ptr, fname_csc_row_indx, fname_csc_val,
-                          this->csc_col_ptr_, this->csc_row_indx_, this->csc_val_, cols + 1,
+                          this->csc_col_ptr_, this->csc_row_indx_, this->csc_val_, this->cols_ + 1,
                           this->max_col_nnz_);
 }
 
 void SparseMatrix::read_compressed(const std::string& fname_cs_ptr, const std::string& fname_cs_indx, const std::string& fname_cs_val,
                                    std::shared_ptr<unsigned>& cs_ptr, std::shared_ptr<unsigned>& cs_indx, std::shared_ptr<DTYPE>& cs_val,
                                    long num_elems_in_cs_ptr, long& max_nnz_in_one_dim) {
-//    std::ifstream f_indx(fname_cs_indx, std::ios::binary);
-//    std::ifstream f_val(fname_cs_val, std::ios::binary);
-
-//    for (long i = 0; i < this->nnz_; i++) {
-//        f_indx.read((char*) &cs_indx.get()[i], sizeof(unsigned));
-//        f_val.read((char*) &cs_val.get()[i], sizeof(float));
-//    }
-
 
     FILE* f_indx = fopen(fname_cs_indx.c_str(), "rb");
     FILE* f_val = fopen(fname_cs_val.c_str(), "rb");

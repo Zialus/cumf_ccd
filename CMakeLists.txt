@@ -34,13 +34,13 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif ()
 
 # Compiler flags to enable all warnings during all compilations
-#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything")
-#elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
-#endif ()
+endif ()
 
 # Compiler flags to silence/add some warnings during all compilations
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -53,11 +53,11 @@ endif ()
 
 # Compiler flags to silence/or add some warnings only during nvcc compilation
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Wno-deprecated-declarations")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-#    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Wno-deprecated-declarations")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-#    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Wno-deprecated-declarations")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
 endif ()
 
 
