@@ -1,6 +1,9 @@
 #ifndef PMF_UTIL_H
 #define PMF_UTIL_H
 
+#include "util.h"
+#include <memory>
+
 class TestData;
 class SparseMatrix;
 class Options;
@@ -96,8 +99,8 @@ private:
         FILE* f_indx = fopen(fname_cs_indx.c_str(), "rb");
         FILE* f_val = fopen(fname_cs_val.c_str(), "rb");
 
-        fread(&cs_indx.get()[0], sizeof(unsigned) * this->nnz_, 1, f_indx);
-        fread(&cs_val.get()[0], sizeof(float) * this->nnz_, 1, f_val);
+        CHECK_FREAD(fread(&cs_indx.get()[0], sizeof(unsigned) * this->nnz_, 1, f_indx), 1);
+        CHECK_FREAD(fread(&cs_val.get()[0], sizeof(float) * this->nnz_, 1, f_val), 1);
 
 
         std::ifstream f_ptr(fname_cs_ptr, std::ios::binary);
@@ -168,9 +171,9 @@ public:
         FILE* f_row = fopen(fname_row.c_str(), "rb");
         FILE* f_col = fopen(fname_col.c_str(), "rb");
 
-        fread(&test_val.get()[0], sizeof(DTYPE) * this->nnz_, 1, f_val);
-        fread(&test_row.get()[0], sizeof(unsigned) * this->nnz_, 1, f_row);
-        fread(&test_col.get()[0], sizeof(unsigned) * this->nnz_, 1, f_col);
+        CHECK_FREAD(fread(&test_val.get()[0], sizeof(DTYPE) * this->nnz_, 1, f_val), 1);
+        CHECK_FREAD(fread(&test_row.get()[0], sizeof(unsigned) * this->nnz_, 1, f_row), 1);
+        CHECK_FREAD(fread(&test_col.get()[0], sizeof(unsigned) * this->nnz_, 1, f_col), 1);
 
         fclose(f_val);
         fclose(f_row);

@@ -59,7 +59,7 @@
  *
  */
 
-#include "util.h"
+#include "pmf_util.h"
 #include <cstdio>
 
 void load_from_binary(const char* srcdir, SparseMatrix& R, TestData& T) {

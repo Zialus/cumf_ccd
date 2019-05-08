@@ -65,7 +65,6 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include <memory>
 #include <limits>
 #include <vector>
 #include <algorithm>
@@ -76,11 +75,15 @@
 #include <omp.h>
 
 #include "common.h"
-#include "pmf_util.h"
 
 #define CHECK_FSCAN(err, num)    if(err != num){ \
-    perror("FSCANF"); \
-    exit(EXIT_FAILURE); \
+    fprintf(stderr,"FSCANF read %d, needed %d, in file %s on line %d\n", err, num,__FILE__,__LINE__); \
+    abort(); \
+}
+
+#define CHECK_FREAD(err, num)    if(err != num){ \
+    fprintf(stderr,"FREAD read %zu, needed %d, in file %s on line %d\n", err, num,__FILE__,__LINE__); \
+    abort(); \
 }
 
 class Options {

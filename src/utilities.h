@@ -1,4 +1,4 @@
-#include "util.h"
+#include "pmf_util.h"
 #include "common.h"
 
 void copy_R(SparseMatrix& R, DTYPE* copy_R);
