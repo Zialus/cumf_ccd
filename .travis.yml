@@ -96,18 +96,11 @@ matrix:
     - os: linux
       dist: xenial
       addons:
-        apt:
-          sources:
-            - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main'
-              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-          packages:
-            - clang-4.0
-            - libomp-dev
         coverity_scan:
           project:
             name: "Zialus/cumf_ccd"
           notification_email: raulmendesferreira@gmail.com
-          build_command_prepend: "CC=clang-4.0 && CXX=clang++-4.0 && git fetch --unshallow && cov-configure --compiler clang --comptype clangcc --template && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
+          build_command_prepend: "git fetch --unshallow && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
           build_command: "make"
           branch_pattern: master
       script:
