@@ -5,6 +5,9 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
+#include <cassert>
+#include <cstdio>
+
 const int maxThreadsPerBlock = 1024;
 const int BLOCKSIZE = 128;
 cudaStream_t stream[10 + 1]; //hard coded
@@ -20,6 +23,15 @@ inline __device__ T shfl_down(const T val, unsigned int delta) {
 #else
     return __shfl_down(val, delta);
 #endif
+}
+
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+
+inline void gpuAssert(cudaError_t code, const char* file, int line) {
+    if (code != cudaSuccess) {
+        fprintf(stderr, "GPUassert: %s - %s %d\n", cudaGetErrorString(code), file, line);
+        assert(code == cudaSuccess);
+    }
 }
 
 struct GpuTimer {

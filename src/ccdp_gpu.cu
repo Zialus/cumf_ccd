@@ -66,15 +66,6 @@
 #include "helper_fusedR.h"
 #include "helper_updateH.h"
 
-#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
-
-inline void gpuAssert(cudaError_t code, const char* file, int line) {
-    if (code != cudaSuccess) {
-        fprintf(stderr, "GPUassert: %s - %s %d\n", cudaGetErrorString(code), file, line);
-        assert(code == cudaSuccess);
-    }
-}
-
 // Cyclic Coordinate Descent for Matrix Factorization
 void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param) {
 
