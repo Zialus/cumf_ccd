@@ -175,23 +175,23 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
     gpuErrchk(cudaMalloc((void**) &d_rmse, (T.nnz_ + 1) * sizeof(DTYPE)));
 
     gpuErrchk(cudaEventRecord(start));
-    cudaMemcpy(d_R_colPtr, R.get_csc_col_ptr(), R_colPtr_memsize, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_R_rowPtr, R.get_csr_row_ptr(), R_rowPtr_memsize, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_R_rowIdx, R.get_csc_row_indx(), R_rowIdx_memsize, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_R_colIdx, R.get_csr_col_indx(), R_rowIdx_memsize, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_R_val, R.get_csc_val(), R_val_memsize, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_R_val_t, R.get_csr_val(), R_val_memsize, cudaMemcpyHostToDevice);
+    gpuErrchk(cudaMemcpy(d_R_colPtr, R.get_csc_col_ptr(), R_colPtr_memsize, cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(d_R_rowPtr, R.get_csr_row_ptr(), R_rowPtr_memsize, cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(d_R_rowIdx, R.get_csc_row_indx(), R_rowIdx_memsize, cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(d_R_colIdx, R.get_csr_col_indx(), R_rowIdx_memsize, cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(d_R_val, R.get_csc_val(), R_val_memsize, cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(d_R_val_t, R.get_csr_val(), R_val_memsize, cudaMemcpyHostToDevice));
 
     for (int t = 0; t < k; ++t) {
-        cudaMemcpy(d_W + t * R.rows_, &(W[t][0]), R.rows_ * sizeof(DTYPE), cudaMemcpyHostToDevice);
+        gpuErrchk(cudaMemcpy(d_W + t * R.rows_, &(W[t][0]), R.rows_ * sizeof(DTYPE), cudaMemcpyHostToDevice));
     }
-    cudaMemset(d_H, 0, k * R.cols_ * sizeof(DTYPE));
+    gpuErrchk(cudaMemset(d_H, 0, k * R.cols_ * sizeof(DTYPE)));
 
 
     //copying test
-    cudaMemcpy(d_test_row, T.getTestRow(), (T.nnz_ + 1) * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_test_col, T.getTestCol(), (T.nnz_ + 1) * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_test_val, T.getTestVal(), (T.nnz_ + 1) * sizeof(DTYPE), cudaMemcpyHostToDevice);
+    gpuErrchk(cudaMemcpy(d_test_row, T.getTestRow(), (T.nnz_ + 1) * sizeof(int), cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(d_test_col, T.getTestCol(), (T.nnz_ + 1) * sizeof(int), cudaMemcpyHostToDevice));
+    gpuErrchk(cudaMemcpy(d_test_val, T.getTestVal(), (T.nnz_ + 1) * sizeof(DTYPE), cudaMemcpyHostToDevice));
 
     gpuErrchk(cudaEventRecord(stop));
     gpuErrchk(cudaDeviceSynchronize());
@@ -552,7 +552,7 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
         double tot_rmse = 0;
         double f_rmse = 0;
 
-        cudaMemcpy(&(rmse[0]), d_rmse, (T.nnz_ + 1) * sizeof(DTYPE), cudaMemcpyDeviceToHost);
+        gpuErrchk(cudaMemcpy(&(rmse[0]), d_rmse, (T.nnz_ + 1) * sizeof(DTYPE), cudaMemcpyDeviceToHost));
 
 #pragma omp parallel for reduction(+:tot_rmse)
         for (int i = 0; i < T.nnz_; ++i) {
@@ -569,25 +569,25 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
 
     //Copy Matrices W and H back to host
     for (int t = 0; t < k; ++t) {
-        cudaMemcpy(&(W[t][0]), d_W + t * R.rows_, R.rows_ * sizeof(DTYPE), cudaMemcpyDeviceToHost);
+        gpuErrchk(cudaMemcpy(&(W[t][0]), d_W + t * R.rows_, R.rows_ * sizeof(DTYPE), cudaMemcpyDeviceToHost));
     }
     for (int t = 0; t < k; ++t) {
-        cudaMemcpy(&(H[t][0]), d_H + t * R.cols_, R.cols_ * sizeof(DTYPE), cudaMemcpyDeviceToHost);
+        gpuErrchk(cudaMemcpy(&(H[t][0]), d_H + t * R.cols_, R.cols_ * sizeof(DTYPE), cudaMemcpyDeviceToHost));
     }
 
-    cudaFree(d_u);
-    cudaFree(d_v);
-    cudaFree(d_W);
-    cudaFree(d_H);
-    cudaFree(d_R_rowIdx);
-    cudaFree(d_R_colPtr);
-    cudaFree(d_R_val);
-    cudaFree(d_R_colIdx);
-    cudaFree(d_R_rowPtr);
-    cudaFree(d_R_val_t);
-    cudaFree(d_gArrU);
-    cudaFree(d_gArrV);
-    cudaFree(d_hArrU);
-    cudaFree(d_hArrV);
+    gpuErrchk(cudaFree(d_u));
+    gpuErrchk(cudaFree(d_v));
+    gpuErrchk(cudaFree(d_W));
+    gpuErrchk(cudaFree(d_H));
+    gpuErrchk(cudaFree(d_R_rowIdx));
+    gpuErrchk(cudaFree(d_R_colPtr));
+    gpuErrchk(cudaFree(d_R_val));
+    gpuErrchk(cudaFree(d_R_colIdx));
+    gpuErrchk(cudaFree(d_R_rowPtr));
+    gpuErrchk(cudaFree(d_R_val_t));
+    gpuErrchk(cudaFree(d_gArrU));
+    gpuErrchk(cudaFree(d_gArrV));
+    gpuErrchk(cudaFree(d_hArrU));
+    gpuErrchk(cudaFree(d_hArrV));
 
 }
