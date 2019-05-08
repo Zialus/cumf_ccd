@@ -98,14 +98,16 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
-            - g++-7 # Max version supported by coverity scan right now
+            - clang-4.0
+            - libomp-dev
         coverity_scan:
           project:
             name: "Zialus/cumf_ccd"
           notification_email: raulmendesferreira@gmail.com
-          build_command_prepend: "CC=gcc-7 && CXX=g++-7 && git fetch --unshallow && cov-configure --comptype gcc --compiler gcc-7 --template && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
+          build_command_prepend: "CC=clang-4.0 && CXX=clang++-4.0 && git fetch --unshallow && cov-configure --compiler clang --comptype clangcc --template && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
           build_command: "make"
           branch_pattern: master
       script:
@@ -116,8 +118,8 @@ matrix:
         - CUDA=10.1.105-1
 
 before_install:
-  - wget https://github.com/Kitware/CMake/releases/download/v3.14.0-rc2/cmake-3.14.0-rc2-Linux-x86_64.sh
-  - sudo sh cmake-3.14.0-rc2-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
+  - wget https://github.com/Kitware/CMake/releases/download/v3.14.3/cmake-3.14.3-Linux-x86_64.sh
+  - sudo sh cmake-3.14.3-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
   - source ./.ci/travis_linux
 
 install:
