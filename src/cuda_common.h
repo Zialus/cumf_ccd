@@ -22,4 +22,36 @@ inline __device__ T shfl_down(const T val, unsigned int delta) {
 #endif
 }
 
+struct GpuTimer {
+    cudaEvent_t start{};
+    cudaEvent_t stop{};
+
+    GpuTimer() {
+        cudaEventCreate(&start);
+        cudaEventCreate(&stop);
+    }
+
+    ~GpuTimer() {
+        cudaEventDestroy(start);
+        cudaEventDestroy(stop);
+    }
+
+    void Start() {
+        cudaEventRecord(start, nullptr);
+    }
+
+    void Stop() {
+        cudaEventRecord(stop, nullptr);
+    }
+
+
+    float Elapsed() {
+        float miliseconds;
+        cudaEventSynchronize(stop);
+        cudaEventElapsedTime(&miliseconds, start, stop);
+        return miliseconds / 1000;
+    }
+
+};
+
 #endif // CUDA_COMMON_H

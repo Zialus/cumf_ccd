@@ -308,7 +308,18 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
     float mergeRT = 0;
     float updateR = 0;
     float updateRT = 0;
+
+    float update_time_acc = 0;
+    float rank_time_acc = 0;
+
     for (int oiter = 1; oiter <= maxiter; ++oiter) {
+
+        float update_time = 0;
+        float rank_time = 0;
+        GpuTimer update_timer;
+        GpuTimer rmse_timer;
+        GpuTimer rank_timer;
+
         int kk = 0;
 
         for (int tt = 0; tt < k; ++tt) {
@@ -321,7 +332,9 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
 
             //if (oiter > 1)
             {
-                //**************************Updating R with add true**********************************
+                update_timer.Start();
+
+                /**************************Updating R with add true**********************************/
                 mergeR = 0;
                 for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
                     int tile_no = tile / tileSize_H;
@@ -356,7 +369,7 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
                     printf("time to merge R %f\n", mergeR);
                 }
 
-                //**************************Updating RTranspose with add true**********************************
+                /**************************Updating RTranspose with add true**********************************/
                 mergeRT = 0;
                 for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile += tileSize_W) {
                     int tile_no = tile / tileSize_W;
@@ -391,13 +404,19 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
                     printf("time to merge Rt %f\n", mergeRT);
                 }
 
+                update_timer.Stop();
+                update_time += update_timer.Elapsed();
+
             }
 
-            //*************************inner iter*****************
+            /*************************inner iter*****************/
+
+            rank_timer.Start();
 
             int maxit = param.maxinneriter;
             for (int iter = 1; iter < maxit; ++iter) {
-                //*************************Update Ht***************
+
+                /*************************Update Ht***************/
                 float updateHT = 0;
                 for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
                     int tile_no = tile / tileSize_H;
@@ -424,8 +443,7 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
                     printf("time to update Ht %f\n", updateHT);
                 }
 
-                //*************************Update Wt***************
-
+                /*************************Update Wt***************/
                 float updateWT = 0;
                 for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile += tileSize_W) {
                     int tile_no = tile / tileSize_W;
@@ -453,8 +471,12 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
                 }
             }
 
-            //**************************Updating R = R - Wt * Ht  *****************************
+            rank_timer.Stop();
+            rank_time += rank_timer.Elapsed();
 
+
+            update_timer.Start();
+            /**************************Updating R = R - Wt * Ht  *****************************/
             updateR = 0;
             if (t == k - 1) {
                 for (int tile = tileSize_H; tile < (R.rows_ + tileSize_H - 1); tile += tileSize_H) {
@@ -479,9 +501,9 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
                 printf("time to update R %f ms\n", updateR);
             }
 
-            //**************************Updating RT = RT - Wt * Ht  *****************************
-
+            /**************************Updating RT = RT - Wt * Ht  *****************************/
             updateRT = 0;
+
             if (t == k - 1) {
                 for (int tile = tileSize_W; tile < (R.cols_ + tileSize_W - 1); tile += tileSize_W) {
                     int tile_no = tile / tileSize_W;
@@ -510,9 +532,17 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
                 printf("iter %d time for 1 feature: %f ms\n", oiter, ACSRTime);
             }
 
+            update_timer.Stop();
+            update_time += update_timer.Elapsed();
+
         }
 
-        //**************Check RMSE********************
+
+        update_time_acc += update_time;
+        rank_time_acc += rank_time;
+        /****************Check RMSE********************/
+        rmse_timer.Start();
+
         cudaMemset(d_rmse, 0, (T.nnz_ + 1) * sizeof(DTYPE));
         cudaMemset(d_pred_v, 0, (T.nnz_ + 1) * sizeof(DTYPE));
 
@@ -528,9 +558,12 @@ void ccdr1(SparseMatrix& R, MatData& W, MatData& H, TestData& T, Options& param)
         for (int i = 0; i < T.nnz_; ++i) {
             tot_rmse += rmse[i];
         }
-
         f_rmse = sqrt(tot_rmse / T.nnz_);
-        printf("[-INFO-] iteration num %d \t time %f \t RMSE=%f\n", oiter, (ACSRTime / 1000), f_rmse);
+        rmse_timer.Stop();
+
+        float rmse_time = rmse_timer.Elapsed();
+        printf("[-INFO-] iteration num %d \trank_time %.4lf|%.4lf s \tupdate_time %.4lf|%.4lfs \tRMSE=%lf time:%fs\n",
+               oiter, rank_time, rank_time_acc, update_time, update_time_acc, f_rmse, rmse_time);
 
     }
 
