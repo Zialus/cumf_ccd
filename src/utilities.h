@@ -1,12 +1,5 @@
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-
 #include "util.h"
 #include "common.h"
-
-void cuda_timerStart(cudaEvent_t start, cudaStream_t streamT);
-
-float cuda_timerEnd(cudaEvent_t start, cudaEvent_t stop, cudaStream_t streamT);
 
 void copy_R(SparseMatrix& R, DTYPE* copy_R);
 

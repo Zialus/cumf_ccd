@@ -66,4 +66,18 @@ struct GpuTimer {
 
 };
 
+void cuda_timerStart(cudaEvent_t start, cudaStream_t streamT) {
+    cudaEventRecord(start, streamT);
+}
+
+float cuda_timerEnd(cudaEvent_t start, cudaEvent_t stop, cudaStream_t streamT) {
+    float mili = 0;
+    cudaDeviceSynchronize();
+    cudaEventRecord(stop, streamT);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&mili, start, stop);
+    return mili;
+}
+
+
 #endif // CUDA_COMMON_H

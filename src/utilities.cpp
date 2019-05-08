@@ -1,18 +1,5 @@
 #include "utilities.h"
 
-void cuda_timerStart(cudaEvent_t start, cudaStream_t streamT) {
-    cudaEventRecord(start, streamT);
-}
-
-float cuda_timerEnd(cudaEvent_t start, cudaEvent_t stop, cudaStream_t streamT) {
-    float mili = 0;
-    cudaDeviceSynchronize();
-    cudaEventRecord(stop, streamT);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&mili, start, stop);
-    return mili;
-}
-
 void copy_R(SparseMatrix& R, DTYPE* copy_R) {
     auto val_ptr = R.get_csr_val();
 #pragma omp parallel for
