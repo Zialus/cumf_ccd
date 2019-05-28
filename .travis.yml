@@ -38,7 +38,7 @@ matrix:
       env: CUDA=10.0.130-1
     - os: linux
       dist: xenial
-      env: CUDA=10.1.105-1
+      env: CUDA=10.1.168-1
     - os : osx
       osx_image: xcode7.3
       env: CUDA=7.5.27
@@ -69,13 +69,19 @@ matrix:
       before_install: *cuda_install
     - os : osx
       osx_image: xcode10.1
-      env: CUDA=10.1.105
+      env: CUDA=10.1.168
       before_install: *cuda_install
 
     # SONARCLOUD
-    - os: linux
+    - name: "SonarCloud"
+      os: linux
       dist: xenial
       addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
         sonarcloud:
           organization: "zialus-github"
           token:
@@ -83,36 +89,41 @@ matrix:
       script:
         - git fetch --unshallow
         - mkdir build && cd build
-        - cmake -DCMAKE_BUILD_TYPE=Release ..
+        - CC=gcc-8 && CXX=g++-8 cmake -DCMAKE_BUILD_TYPE=Release ..
         - build-wrapper-linux-x86-64 --out-dir bw-output make clean all
         - ctest -V -C Release
         - cd ..
         - sonar-scanner
       env:
-        - SONAR_CLOUD="YUP"
-        - CUDA=10.1.105-1
+        - CUDA=10.1.168-1
 
     # COVERITY_SCAN
-    - os: linux
+    - name: "Coverity Scan"
+      os: linux
       dist: xenial
       addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7 # Max version supported by coverity scan right now
         coverity_scan:
           project:
             name: "Zialus/cumf_ccd"
           notification_email: raulmendesferreira@gmail.com
-          build_command_prepend: "git fetch --unshallow && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
+          build_command_prepend: "CC=gcc-7 && CXX=g++-7 && git fetch --unshallow && cov-configure --comptype gcc --compiler gcc-7 --template && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
           build_command: "make"
           branch_pattern: master
       script:
         - echo "Coverity Scan"
-        - cat /home/travis/build/Zialus/cumf_ccd/build/cov-int/build-log.txt
+        - cat build/cov-int/build-log.txt
       env:
         - secure: "ONt+HKZX6FyG+7+eaClw7gpQa/wkbWsE4aT/biIHfxaW52tQdgD//h9UGMt1PgxC2/bMYLv14wI0QKTyDK75d2bHtyk0aa8w5RomSxYqPxzVXSNpFY5jMnxG2HWEE0TKJZdBALt45ZoNxVRWln9UGZUXpXyecvyuKzCObnyFkdWECmJ/WtRj0X7+d0KulIVSzhRiau4qMmdx7xVEoYorPwanIOETcFVXYs1nS4yxLxKjD+vnremCFVe7gBkKgEUUy2mooW/LUhq3wWKP0M+RiMC98LittBPB2VtukoHMMEMR1Nz9cflL+lE+Dh7VUEnpZKJ0p+cCGLGfcKxr5Z+udoOFpocJaUCZxdUt5W27bfBqob7g8kafSHsFWJ23VMFE7zNHyVM04/uCSyoy5pEMctXjy4Zu8Qz8/q+ndNb224RGh/JTf0ypf8TwfjNMvBT4F+isCudA+FBBxLTHfL92LpBZimPQSEcDFZf1bmmLu2nBp0mq+377u+mejX7Kiwf7dMbBMP0roSYnxOaKHIDmmoLQ9g/c+VNs/xfta+Gx52gLGpBQPggYXFSV5oqVgeZCSdJqmn6Mzhssxw16jw8jMhkJhhk4xUSWujP9R3jgqxzsQGqamA6X5sM5hzMUhNIbxtNqdGtJ+BiYn7XdunGCzMCmNKIsdE1XuHRW6YVpmcE="
-        - CUDA=10.1.105-1
+        - CUDA=10.1.168-1
 
 before_install:
-  - wget https://github.com/Kitware/CMake/releases/download/v3.14.3/cmake-3.14.3-Linux-x86_64.sh
-  - sudo sh cmake-3.14.3-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
+  - wget https://github.com/Kitware/CMake/releases/download/v3.14.4/cmake-3.14.4-Linux-x86_64.sh
+  - sudo sh cmake-3.14.4-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
   - source ./.ci/travis_linux
 
 install:
