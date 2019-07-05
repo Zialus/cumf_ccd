@@ -106,12 +106,12 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-7 # Max version supported by coverity scan right now
+            - g++-8
         coverity_scan:
           project:
             name: "Zialus/cumf_ccd"
           notification_email: raulmendesferreira@gmail.com
-          build_command_prepend: "CC=gcc-7 && CXX=g++-7 && git fetch --unshallow && cov-configure --comptype gcc --compiler gcc-7 --template && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
+          build_command_prepend: "CC=gcc-8 && CXX=g++-8 && git fetch --unshallow && cov-configure --comptype gcc --compiler gcc-8 --template && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
           build_command: "make"
           branch_pattern: master
       script:
