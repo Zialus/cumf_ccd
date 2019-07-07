@@ -86,6 +86,11 @@
     abort(); \
 }
 
+#define CHECK_SNPRINTF(num)    if(num < 0){ \
+    fprintf(stderr,"SNPRINTF returned %d, in file %s on line %d\n", num,__FILE__,__LINE__); \
+    abort(); \
+}
+
 class Options {
 public:
     unsigned k = 10;
