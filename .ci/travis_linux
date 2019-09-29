@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -x
 
 CUDA=$(echo ${CUDA} | cut -d '.' -f1,2)
@@ -7,18 +8,22 @@ case ${CUDA%-*} in
 '6.5')
     travis_retry wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_6.5-19_amd64.deb
     travis_retry sudo dpkg -i cuda-repo-ubuntu1404_6.5-19_amd64.deb
+    travis_retry sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/7fa2af80.pub
     ;;
 '7.0')
     travis_retry wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.0-28_amd64.deb
     travis_retry sudo dpkg -i cuda-repo-ubuntu1404_7.0-28_amd64.deb
+    travis_retry sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/7fa2af80.pub
     ;;
 '7.5')
     travis_retry wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/cuda-repo-ubuntu1404_7.5-18_amd64.deb
     travis_retry sudo dpkg -i cuda-repo-ubuntu1404_7.5-18_amd64.deb
+    travis_retry sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1404/x86_64/7fa2af80.pub
     ;;
 '8.0')
     travis_retry wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
     travis_retry sudo dpkg -i cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+    travis_retry sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
     ;;
 '9.0')
     travis_retry wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_9.0.176-1_amd64.deb
@@ -41,8 +46,8 @@ case ${CUDA%-*} in
     travis_retry sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
     ;;
 '10.1')
-    travis_retry wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
-    travis_retry sudo dpkg -i cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
+    travis_retry wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_10.1.243-1_amd64.deb
+    travis_retry sudo dpkg -i cuda-repo-ubuntu1604_10.1.243-1_amd64.deb
     travis_retry sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
     ;;
 
@@ -52,7 +57,6 @@ CUDA_APT=${CUDA%-*}
 CUDA_APT=${CUDA_APT/./-}
 
 travis_retry sudo apt-get update
-travis_retry sudo apt-get install cuda-${CUDA_APT} -y
-travis_retry sudo apt-get clean
+travis_retry sudo apt-get install -y cuda-${CUDA_APT}
 
 set +x

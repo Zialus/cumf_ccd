@@ -23,22 +23,22 @@ matrix:
       env: CUDA=7.5-18
     - os: linux
       dist: xenial
-      env: CUDA=8.0.61-1
+      env: CUDA=8.0.61
     - os: linux
       dist: xenial
-      env: CUDA=9.0.176-1
+      env: CUDA=9.0.176
     - os: linux
       dist: xenial
-      env: CUDA=9.1.85-1
+      env: CUDA=9.1.85
     - os: linux
       dist: xenial
-      env: CUDA=9.2.148-1
+      env: CUDA=9.2.148
     - os: linux
       dist: xenial
-      env: CUDA=10.0.130-1
+      env: CUDA=10.0.130
     - os: linux
       dist: xenial
-      env: CUDA=10.1.168-1
+      env: CUDA=10.1.243
     - os : osx
       osx_image: xcode7.3
       env: CUDA=7.5.27
@@ -69,7 +69,7 @@ matrix:
       before_install: *cuda_install
     - os : osx
       osx_image: xcode10.1
-      env: CUDA=10.1.168
+      env: CUDA=10.1.243
       before_install: *cuda_install
 
     # SONARCLOUD
@@ -95,7 +95,7 @@ matrix:
         - cd ..
         - sonar-scanner
       env:
-        - CUDA=10.1.168-1
+        - CUDA=10.1.243
 
     # COVERITY_SCAN
     - name: "Coverity Scan"
@@ -119,11 +119,12 @@ matrix:
         - cat build/cov-int/build-log.txt
       env:
         - secure: "ONt+HKZX6FyG+7+eaClw7gpQa/wkbWsE4aT/biIHfxaW52tQdgD//h9UGMt1PgxC2/bMYLv14wI0QKTyDK75d2bHtyk0aa8w5RomSxYqPxzVXSNpFY5jMnxG2HWEE0TKJZdBALt45ZoNxVRWln9UGZUXpXyecvyuKzCObnyFkdWECmJ/WtRj0X7+d0KulIVSzhRiau4qMmdx7xVEoYorPwanIOETcFVXYs1nS4yxLxKjD+vnremCFVe7gBkKgEUUy2mooW/LUhq3wWKP0M+RiMC98LittBPB2VtukoHMMEMR1Nz9cflL+lE+Dh7VUEnpZKJ0p+cCGLGfcKxr5Z+udoOFpocJaUCZxdUt5W27bfBqob7g8kafSHsFWJ23VMFE7zNHyVM04/uCSyoy5pEMctXjy4Zu8Qz8/q+ndNb224RGh/JTf0ypf8TwfjNMvBT4F+isCudA+FBBxLTHfL92LpBZimPQSEcDFZf1bmmLu2nBp0mq+377u+mejX7Kiwf7dMbBMP0roSYnxOaKHIDmmoLQ9g/c+VNs/xfta+Gx52gLGpBQPggYXFSV5oqVgeZCSdJqmn6Mzhssxw16jw8jMhkJhhk4xUSWujP9R3jgqxzsQGqamA6X5sM5hzMUhNIbxtNqdGtJ+BiYn7XdunGCzMCmNKIsdE1XuHRW6YVpmcE="
-        - CUDA=10.1.168-1
+        - CUDA=10.1.243
 
 before_install:
-  - wget https://github.com/Kitware/CMake/releases/download/v3.14.4/cmake-3.14.4-Linux-x86_64.sh
-  - sudo sh cmake-3.14.4-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
+  - export CMAKE_VERSION=3.15.3
+  - wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh
+  - sudo sh cmake-${CMAKE_VERSION}-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
   - source ./.ci/travis_linux
 
 install:
